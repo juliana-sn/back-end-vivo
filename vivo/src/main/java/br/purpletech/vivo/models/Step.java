@@ -21,6 +21,7 @@ public class Step {
     private String description;
 
     @ManyToOne
+    @JsonIgnoreProperties("steps")
     @JoinColumn(name = "onboarding_id")
     private Onboarding onboarding;
 

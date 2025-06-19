@@ -1,11 +1,14 @@
 package br.purpletech.vivo.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -21,14 +24,82 @@ public class Onboarding {
     private boolean active;
 
     @ManyToOne
+    @JsonIgnoreProperties({"password", "onboarding"}) // para não ocorrer replicação infinita no json
     @JoinColumn(name = "manager_id")
     private User manager;
 
     @ManyToOne
+    @JsonIgnoreProperties({"password", "onboarding"})
     @JoinColumn(name = "buddy_id")
     private User buddy;
 
     @OneToOne
+    @JsonIgnoreProperties({"password", "onboarding"})
     @JoinColumn(name = "collaborator_id")
     private User collaborator;
+
+    @OneToMany(mappedBy = "onboarding")
+    @JsonIgnoreProperties("onboarding")
+    private Set<Step> steps = new HashSet<>();
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public LocalDate getDt_begin() {
+        return dt_begin;
+    }
+
+    public void setDt_begin(LocalDate dt_begin) {
+        this.dt_begin = dt_begin;
+    }
+
+    public LocalDate getDt_end() {
+        return dt_end;
+    }
+
+    public void setDt_end(LocalDate dt_end) {
+        this.dt_end = dt_end;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public User getManager() {
+        return manager;
+    }
+
+    public void setManager(User manager) {
+        this.manager = manager;
+    }
+
+    public User getBuddy() {
+        return buddy;
+    }
+
+    public void setBuddy(User buddy) {
+        this.buddy = buddy;
+    }
+
+    public User getCollaborator() {
+        return collaborator;
+    }
+
+    public void setCollaborator(User collaborator) {
+        this.collaborator = collaborator;
+    }
+
+    public Set<Step> getSteps() {
+        return steps;
+    }
+
+    public void setSteps(Set<Step> steps) {
+        this.steps = steps;
+    }
 }

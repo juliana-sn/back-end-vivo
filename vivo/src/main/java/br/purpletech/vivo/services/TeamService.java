@@ -17,7 +17,7 @@ public interface TeamService {
     Team addUser(Long id, User user);
     boolean deleteUser(Long id_team, Long id_user);
 
-    Team addPlatform(Long id, Platform platform);
+    Team addPlatform(Long id, Long id_platform);
     boolean deletePlatform(Long id_team, Long id_platform);
 
 }

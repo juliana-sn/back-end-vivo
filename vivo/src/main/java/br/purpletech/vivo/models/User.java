@@ -35,6 +35,7 @@ public class User {
     private Team team;
 
     @ManyToMany
+    @JsonIgnoreProperties({"active", "users"})
     @JoinTable(name = "user_onboarding", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "onboarding_id"))
     private Set<Onboarding> onboarding = new HashSet<>(); //add controle para colaborador ter somente um
 

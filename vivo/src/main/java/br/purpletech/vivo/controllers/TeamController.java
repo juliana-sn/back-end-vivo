@@ -62,9 +62,9 @@ public class TeamController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{id}/platforms")
-    public ResponseEntity<Team> addPlatform(@PathVariable Long id, @RequestBody Platform platformToCreate){
-        var team = teamServiceImp.addPlatform(id, platformToCreate);
+    @PostMapping("/{id}/platforms/{id_platform}")
+    public ResponseEntity<Team> addPlatform(@PathVariable Long id, @PathVariable Long id_platform){
+        var team = teamServiceImp.addPlatform(id, id_platform);
         return ResponseEntity.ok(team);
     }
 

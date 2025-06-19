@@ -93,14 +93,18 @@ public class TeamServiceImp implements TeamService {
     }
 
     @Override
-    public Team addPlatform(Long id, Platform platform) {
+    public Team addPlatform(Long id, Long id_platform) {
         Optional<Team> teamOptional = Optional.ofNullable(teamRepository.findById(id).orElseThrow(() -> new RuntimeException("Equipe não encontrada")));
-        if(teamOptional.isPresent()) {
+        Optional<Platform> platformOptional = Optional.ofNullable(platformRepository.findById(id_platform).orElseThrow(() -> new RuntimeException("Plataforma não encontrada")));
+
+        if(teamOptional.isPresent() && platformOptional.isPresent()) {
             Team team = teamOptional.get();
+            Platform platform = platformOptional.get();
 
-            Platform savedPlatform = platformRepository.save(platform);
+            team.getPlatforms().add(platform);
+            platform.getTeams().add(team);
 
-            team.getPlatforms().add(savedPlatform);
+            platformRepository.save(platform);
             return teamRepository.save(team);
         }else{
             return null;
