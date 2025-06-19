@@ -1,30 +1,19 @@
 package br.purpletech.vivo.services;
 
 import br.purpletech.vivo.models.Team;
-import br.purpletech.vivo.repositories.TeamRepository;
-
-import org.springframework.stereotype.Service;
+import br.purpletech.vivo.models.User;
 
 import java.util.List;
 import java.util.Optional;
 
-@Service
-public class TeamService {
-    private final TeamRepository teamRepository;
+public interface TeamService {
+    public List<Team> getAllTeams();
+    public Optional<Team> getById(Long id);
+    public Team createTeam(Team team);
+    public Optional<Team> updateNameTeam(Long id, Team updatedTeam);
+    public boolean deleteTeam(Long id);
 
-    public TeamService(TeamRepository teamRepository) {
-        this.teamRepository = teamRepository;
-    }
-
-    public List<Team> getAllTeams() { return teamRepository.findAll();}
-
-    public Optional<Team> getById(Long id) {
-        return teamRepository.findById(id);
-    }
-
-    public Team createTeam(Team team) {
-        return teamRepository.save(team);
-    }
-
+    public Team addUser(Long id, User user);
+    public boolean deleteUser(Long id_team, Long id_user);
 
 }

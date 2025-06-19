@@ -4,8 +4,8 @@ package br.purpletech.vivo.controllers;
 import br.purpletech.vivo.models.Role;
 import br.purpletech.vivo.models.Team;
 import br.purpletech.vivo.models.User;
-import br.purpletech.vivo.services.TeamService;
-import br.purpletech.vivo.services.UserService;
+import br.purpletech.vivo.services.imp.TeamServiceImp;
+import br.purpletech.vivo.services.imp.UserServiceImp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,30 +16,30 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final UserService userService;
+    private final UserServiceImp userServiceImp;
 
     @Autowired
-    private TeamService teamService;
+    private TeamServiceImp teamServiceImp;
 
-    public UserController(UserService userService){
-        this.userService = userService;
+    public UserController(UserServiceImp userServiceImp){
+        this.userServiceImp = userServiceImp;
     }
 
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers(){
-        var users = userService.getAllUsers();
+        var users = userServiceImp.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Optional<User>> getUserById(@PathVariable Long id){
-        var user = userService.getById(id);
+        var user = userServiceImp.getById(id);
         return ResponseEntity.ok(user);
     }
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User userToCreate){
-        Optional<Team> teamOptional = Optional.ofNullable(teamService.getById(userToCreate.getTeam().getId()).orElseThrow(() ->
+        Optional<Team> teamOptional = Optional.ofNullable(teamServiceImp.getById(userToCreate.getTeam().getId()).orElseThrow(() ->
                 new RuntimeException("Equipe não encontrada")));
 
         if(teamOptional.isPresent()){
@@ -47,26 +47,26 @@ public class UserController {
             userToCreate.setTeam(team);
         }
 
-        User createdUser = userService.createUser(userToCreate);
+        User createdUser = userServiceImp.createUser(userToCreate);
 
         return ResponseEntity.ok(createdUser);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id){
-        userService.deleteUser(id);
+        userServiceImp.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Optional<User>> updateUser(@PathVariable Long id, User updateUser){
-        var updatedUser = userService.updateUser(id, updateUser);
+        var updatedUser = userServiceImp.updateUser(id, updateUser);
         return ResponseEntity.ok(updatedUser);
     }
 
     @GetMapping("/role")
     public ResponseEntity<List<User>> getUsersByRole(@RequestParam Role role){
-        var users = userService.getUsersByRole(role);
+        var users = userServiceImp.getUsersByRole(role);
         return ResponseEntity.ok(users);
     }
 }
