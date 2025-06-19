@@ -1,5 +1,6 @@
 package br.purpletech.vivo.services;
 
+import br.purpletech.vivo.models.Platform;
 import br.purpletech.vivo.models.Team;
 import br.purpletech.vivo.models.User;
 
@@ -7,13 +8,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TeamService {
-    public List<Team> getAllTeams();
-    public Optional<Team> getById(Long id);
-    public Team createTeam(Team team);
-    public Optional<Team> updateNameTeam(Long id, Team updatedTeam);
-    public boolean deleteTeam(Long id);
+    List<Team> getAllTeams();
+    Optional<Team> getById(Long id);
+    Team createTeam(Team team);
+    Optional<Team> updateNameTeam(Long id, Team updatedTeam);
+    boolean deleteTeam(Long id);
 
-    public Team addUser(Long id, User user);
-    public boolean deleteUser(Long id_team, Long id_user);
+    Team addUser(Long id, User user);
+    boolean deleteUser(Long id_team, Long id_user);
+
+    Team addPlatform(Long id, Platform platform);
+    boolean deletePlatform(Long id_team, Long id_platform);
 
 }

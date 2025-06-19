@@ -23,7 +23,7 @@ public class Team {
     private String department;
 
     @OneToMany(mappedBy = "team")
-    @JsonIgnoreProperties({"password", "team", "onboarding"})
+    @JsonIgnoreProperties({"password", "team", "onboarding"}) // para não ocorrer replicação infinita no json
     private Set<User> users = new HashSet<>();
 
     @ManyToMany

@@ -1,7 +1,9 @@
 package br.purpletech.vivo.services.imp;
 
+import br.purpletech.vivo.models.Platform;
 import br.purpletech.vivo.models.Team;
 import br.purpletech.vivo.models.User;
+import br.purpletech.vivo.repositories.PlatformRepository;
 import br.purpletech.vivo.repositories.TeamRepository;
 
 import br.purpletech.vivo.repositories.UserRepository;
@@ -19,6 +21,9 @@ public class TeamServiceImp implements TeamService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PlatformRepository platformRepository;
 
     public TeamServiceImp(TeamRepository teamRepository) {
         this.teamRepository = teamRepository;
@@ -79,6 +84,40 @@ public class TeamServiceImp implements TeamService {
 
             team.getUsers().remove(user);
             user.setTeam(null);
+            teamRepository.save(team);
+            userRepository.save(user);
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public Team addPlatform(Long id, Platform platform) {
+        Optional<Team> teamOptional = Optional.ofNullable(teamRepository.findById(id).orElseThrow(() -> new RuntimeException("Equipe não encontrada")));
+        if(teamOptional.isPresent()) {
+            Team team = teamOptional.get();
+
+            Platform savedPlatform = platformRepository.save(platform);
+
+            team.getPlatforms().add(savedPlatform);
+            return teamRepository.save(team);
+        }else{
+            return null;
+        }
+    }
+
+    @Override
+    public boolean deletePlatform(Long id_team, Long id_platform) {
+        Optional<Team> teamOptional = Optional.ofNullable(teamRepository.findById(id_team).orElseThrow(() -> new EntityNotFoundException("Equipe não encontrada")));
+
+        Optional<Platform> platformOptional = Optional.ofNullable(platformRepository.findById(id_platform).orElseThrow(()-> new EntityNotFoundException("Plataforma não encontrado")));
+
+        if (teamOptional.isPresent() && platformOptional.isPresent()){
+            Team team = teamOptional.get();
+            Platform platform = platformOptional.get();
+
+            team.getPlatforms().remove(platform);
             teamRepository.save(team);
             return true;
         }else{

@@ -1,5 +1,6 @@
 package br.purpletech.vivo.controllers;
 
+import br.purpletech.vivo.models.Platform;
 import br.purpletech.vivo.models.Team;
 import br.purpletech.vivo.models.User;
 import br.purpletech.vivo.services.imp.TeamServiceImp;
@@ -58,6 +59,18 @@ public class TeamController {
     @DeleteMapping("/{id}/users/{id_user}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id, @PathVariable Long id_user){
         teamServiceImp.deleteUser(id, id_user);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/platforms")
+    public ResponseEntity<Team> addPlatform(@PathVariable Long id, @RequestBody Platform platformToCreate){
+        var team = teamServiceImp.addPlatform(id, platformToCreate);
+        return ResponseEntity.ok(team);
+    }
+
+    @DeleteMapping("/{id}/platforms/{id_platform}")
+    public ResponseEntity<Void> deletePlatform(@PathVariable Long id, @PathVariable Long id_platform){
+        teamServiceImp.deletePlatform(id, id_platform);
         return ResponseEntity.noContent().build();
     }
 }

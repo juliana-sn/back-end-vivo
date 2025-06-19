@@ -30,7 +30,7 @@ public class User {
     private Role role; // collaborator, buddy or manager
 
     @ManyToOne
-    @JsonIgnoreProperties({"users", "platforms"})
+    @JsonIgnoreProperties({"users", "platforms"}) // para não ocorrer replicação infinita no json
     @JoinColumn(name = "team_id")
     private Team team;
 
