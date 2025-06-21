@@ -1,6 +1,7 @@
 package br.purpletech.vivo.controllers;
 
 import br.purpletech.vivo.models.Onboarding;
+import br.purpletech.vivo.models.Report;
 import br.purpletech.vivo.models.Step;
 import br.purpletech.vivo.models.User;
 import br.purpletech.vivo.services.imp.OnboardingServiceImp;
@@ -84,5 +85,17 @@ public class OnboardingController {
     public ResponseEntity<Onboarding> deleteStepOnboarding(@PathVariable Long id, @PathVariable Long id_step){
         onboardingServiceImp.deleteStep(id, id_step);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/reports")
+    public ResponseEntity<Onboarding> createReport (@PathVariable Long id, @RequestBody Report report){
+        var onboarding = onboardingServiceImp.addReport(id, report);
+        return ResponseEntity.ok(onboarding);
+    }
+
+    @GetMapping("/{id}/reports")
+    public ResponseEntity<Optional<List<Report>>> getAllReports (@PathVariable Long id){
+        var reports = onboardingServiceImp.getReports(id);
+        return ResponseEntity.ok(reports);
     }
 }

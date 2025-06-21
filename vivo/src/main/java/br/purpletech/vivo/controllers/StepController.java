@@ -2,7 +2,7 @@ package br.purpletech.vivo.controllers;
 
 import br.purpletech.vivo.models.Step;
 import br.purpletech.vivo.models.Task;
-import br.purpletech.vivo.services.imp.StepServiceImpl;
+import br.purpletech.vivo.services.imp.StepServiceImp;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,10 +12,10 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/steps")
 public class StepController {
-    private final StepServiceImpl stepServiceImp;
+    private final StepServiceImp stepServiceImp;
 
 
-    public StepController(StepServiceImpl stepServiceImp) {
+    public StepController(StepServiceImp stepServiceImp) {
         this.stepServiceImp = stepServiceImp;
     }
 

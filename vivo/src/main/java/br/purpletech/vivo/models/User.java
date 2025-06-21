@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity(name = "tb_users")
@@ -25,6 +26,10 @@ public class User {
     private String password;
     private String position;
     private String telephone;
+
+    @OneToMany(mappedBy = "collaborator")
+    @OrderBy("createdAt DESC")
+    private List<Report> reports;
 
     @Enumerated(EnumType.STRING)
     private Role role; // collaborator, buddy or manager

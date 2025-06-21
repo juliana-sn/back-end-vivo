@@ -1,11 +1,10 @@
 package br.purpletech.vivo.controllers;
 
 
-import br.purpletech.vivo.models.Role;
-import br.purpletech.vivo.models.Team;
-import br.purpletech.vivo.models.User;
+import br.purpletech.vivo.models.*;
 import br.purpletech.vivo.services.imp.TeamServiceImp;
 import br.purpletech.vivo.services.imp.UserServiceImp;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -69,4 +68,40 @@ public class UserController {
         var users = userServiceImp.getUsersByRole(role);
         return ResponseEntity.ok(users);
     }
+
+    @GetMapping("/{id}/chat/manager")
+    public ResponseEntity<Optional<Chat>> getChatManager(@PathVariable Long id){
+        var chat = userServiceImp.getChatManager(id);
+        return ResponseEntity.ok(chat);
+    }
+
+    @PostMapping("/{id}/chat/manager/message")
+    public ResponseEntity<Chat> sendMessageManager(@PathVariable Long id, @RequestBody Message message){
+        var chat = userServiceImp.sendMessageManager(id, message);
+        return ResponseEntity.ok(chat);
+    }
+
+    @GetMapping("/{id}/chat/buddy")
+    public ResponseEntity<Optional<Chat>> getChatBuddy(@PathVariable Long id){
+        var chat = userServiceImp.getChatBuddy(id);
+        return ResponseEntity.ok(chat);
+    }
+
+    @PostMapping("/{id}/chat/buddy/message")
+    public ResponseEntity<Chat> sendMessageBuddy(@PathVariable Long id, @RequestBody Message message){
+        var chat = userServiceImp.sendMessageBuddy(id, message);
+        return ResponseEntity.ok(chat);
+    }
+
+    //@GetMapping("/{id}/chat/collaborator")
+    //public ResponseEntity<Optional<Chat>> getChatCollaborator(@PathVariable Long id){
+    //  var chat = userServiceImp.getChatCollaborator(id);
+    //   return ResponseEntity.ok(chat);
+    //}
+
+    //@PostMapping("/{id}/chat/collaborator/message")
+    //public ResponseEntity<Chat> sendMessageCollaborator(@PathVariable Long id, @RequestBody Message message){
+      //  var chat = userServiceImp.sendMessageCollaborator(id, message);
+        //return ResponseEntity.ok(chat);
+    //}
 }

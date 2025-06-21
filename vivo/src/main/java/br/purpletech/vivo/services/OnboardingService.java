@@ -1,6 +1,7 @@
 package br.purpletech.vivo.services;
 
 import br.purpletech.vivo.models.Onboarding;
+import br.purpletech.vivo.models.Report;
 import br.purpletech.vivo.models.Step;
 import br.purpletech.vivo.models.User;
 
@@ -22,4 +23,12 @@ public interface OnboardingService {
     Onboarding addStep(Long id, Step step);
     boolean deleteStep(Long id, Long id_step);
 
+    Onboarding addReport(Long id, Report report);
+    Optional<List<Report>> getReports (Long id);
+
+    Onboarding findManagerByCollaboratorId(Long collaboratorId);
+    Onboarding findBuddyByCollaboratorId(Long collaboratorId);
+
+    /* Optional<Long> findCollaboratorIdByManagerId(Long userId);
+    Optional<Long> findCollaboratorIdByBuddyId(Long userId);*/
 }

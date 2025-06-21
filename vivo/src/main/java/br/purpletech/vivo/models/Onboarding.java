@@ -7,7 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -40,7 +42,11 @@ public class Onboarding {
 
     @OneToMany(mappedBy = "onboarding")
     @JsonIgnoreProperties("onboarding")
-    private Set<Step> steps = new HashSet<>();
+    private List<Step> steps;
+
+    @OneToMany(mappedBy = "onboarding")
+    @OrderBy("createdAt DESC")
+    private List<Report> reports  = new ArrayList<>();
 
 
     public Long getId() {
@@ -95,11 +101,19 @@ public class Onboarding {
         this.collaborator = collaborator;
     }
 
-    public Set<Step> getSteps() {
+    public List<Step> getSteps() {
         return steps;
     }
 
-    public void setSteps(Set<Step> steps) {
+    public void setSteps(List<Step> steps) {
         this.steps = steps;
+    }
+
+    public List<Report> getReports() {
+        return reports;
+    }
+
+    public void setReports(List<Report> reports) {
+        this.reports = reports;
     }
 }

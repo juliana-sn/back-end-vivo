@@ -1,5 +1,6 @@
 package br.purpletech.vivo.services;
 
+import br.purpletech.vivo.models.Chat;
 import br.purpletech.vivo.models.Role;
 import br.purpletech.vivo.models.User;
 
@@ -13,4 +14,9 @@ public interface UserService {
     Optional<User> updateUser(Long id, User updatedUser);
     boolean deleteUser(Long id);
     List<User> getUsersByRole(Role role);
+
+    Optional<Chat> getChatManager(Long idUser);
+    Optional<Chat> getChatBuddy(Long idUser);
+    //Optional<Chat> getChatCollaborator(Long idUser);
+
 }

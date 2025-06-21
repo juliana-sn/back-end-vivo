@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class StepServiceImpl implements StepService {
+public class StepServiceImp implements StepService {
     private final StepRepository stepRepository;
 
     @Autowired
     private TaskRepository taskRepository;
 
-    public StepServiceImpl(StepRepository stepRepository) {
+    public StepServiceImp(StepRepository stepRepository) {
         this.stepRepository = stepRepository;
     }
 

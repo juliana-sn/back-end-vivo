@@ -2,6 +2,7 @@ package br.purpletech.vivo.services.imp;
 
 import br.purpletech.vivo.models.*;
 import br.purpletech.vivo.repositories.OnboardingRepository;
+import br.purpletech.vivo.repositories.ReportRepository;
 import br.purpletech.vivo.repositories.StepRepository;
 import br.purpletech.vivo.repositories.UserRepository;
 import br.purpletech.vivo.services.OnboardingService;
@@ -15,6 +16,9 @@ import java.util.Optional;
 @Service
 public class OnboardingServiceImp implements OnboardingService {
     private final OnboardingRepository onboardingRepository;
+
+    @Autowired
+    private ReportRepository reportRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -160,4 +164,46 @@ public class OnboardingServiceImp implements OnboardingService {
             return false;
         }
     }
+
+    @Override
+    public Onboarding addReport(Long id, Report report) {
+        Optional<Onboarding> onboardingOptional = Optional.ofNullable(onboardingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Onboarding não encontrado")));
+
+        if (onboardingOptional.isPresent()){
+            Onboarding onboarding = onboardingOptional.get();
+            report.setOnboarding(onboarding);
+            reportRepository.save(report);
+            onboarding.getReports().add(report);
+            return onboardingRepository.save(onboarding);
+        }else {
+            return null;
+        }
+    }
+
+    @Override
+    public Optional<List<Report>> getReports(Long id) {
+        return reportRepository.findAllByOnboardingId(id);
+    }
+
+    @Override
+    public Onboarding findManagerByCollaboratorId(Long collaboratorId) {
+        return onboardingRepository.findManagerByCollaboratorId(collaboratorId);
+    }
+
+    @Override
+    public Onboarding findBuddyByCollaboratorId(Long collaboratorId) {
+        return onboardingRepository.findBuddyByCollaboratorId(collaboratorId);
+    }
+
+    /*
+    @Override
+    public Optional<Long> findCollaboratorIdByManagerId(Long userId) {
+        return onboardingRepository.findCollaboratorIdByManagerId(userId);
+    }
+
+    @Override
+    public Optional<Long> findCollaboratorIdByBuddyId(Long userId) {
+        return onboardingRepository.findCollaboratorIdByBuddyId(userId);
+    }*/
+
 }

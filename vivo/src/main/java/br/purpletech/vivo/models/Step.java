@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,7 +28,7 @@ public class Step {
 
     @OneToMany(mappedBy = "step")
     @JsonIgnoreProperties("step") // para não ocorrer replicação infinita no json
-    private Set<Task> tasks = new HashSet<>();
+    private List<Task> tasks  = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -58,11 +59,11 @@ public class Step {
         this.onboarding = onboarding;
     }
 
-    public Set<Task> getTasks() {
+    public List<Task> getTasks() {
         return tasks;
     }
 
-    public void setTasks(Set<Task> tasks) {
+    public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
     }
 }
