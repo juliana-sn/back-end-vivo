@@ -37,7 +37,7 @@ public class StepController {
         return ResponseEntity.ok(step);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<Optional<Step>> updateStep(@PathVariable Long id, @RequestBody Step updatedStep){
         var step = stepServiceImp.updateStep(id, updatedStep);
         return ResponseEntity.ok(step);

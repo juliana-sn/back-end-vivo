@@ -26,6 +26,9 @@ public class OnboardingServiceImp implements OnboardingService {
     @Autowired
     private StepRepository stepRepository;
 
+    @Autowired
+    private ChatServiceImp chatServiceImp;
+
     public OnboardingServiceImp(OnboardingRepository onboardingRepository) {
         this.onboardingRepository = onboardingRepository;
     }
@@ -48,6 +51,22 @@ public class OnboardingServiceImp implements OnboardingService {
     @Override
     public boolean deleteOnboarding(Long id) {
         return onboardingRepository.findById(id).map(onboarding -> {
+            if (onboarding.getManager() != null) {
+                onboarding.getManager().getOnboarding().remove(onboarding);
+                onboarding.setManager(null);
+            }
+
+            if (onboarding.getBuddy() != null) {
+                onboarding.getBuddy().getOnboarding().remove(onboarding);
+                onboarding.setBuddy(null);
+            }
+
+            if (onboarding.getCollaborator() != null) {
+                onboarding.getCollaborator().getOnboarding().remove(onboarding);
+                onboarding.setCollaborator(null);
+            }
+
+            onboardingRepository.save(onboarding);
             onboardingRepository.delete(onboarding);
             return true;
         }).orElse(false);
@@ -126,6 +145,25 @@ public class OnboardingServiceImp implements OnboardingService {
         }
     }
 
+    public Onboarding createChats(Long id) {
+        Onboarding onboarding = onboardingRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Onboarding não encontrado para o ID " + id));
+
+        User collaborator = onboarding.getCollaborator();
+        User manager = onboarding.getManager();
+        User buddy = onboarding.getBuddy();
+
+        if (collaborator != null && manager != null) {
+            chatServiceImp.findOrCreateChat(collaborator.getId(), manager.getId());
+        }
+
+        if (collaborator != null && buddy != null) {
+            chatServiceImp.findOrCreateChat(collaborator.getId(), buddy.getId());
+        }
+
+        return onboarding;
+    }
+
     @Override
     public Onboarding addStep(Long id, Step step) {
         Optional<Onboarding> onboardingOptional = Optional.ofNullable(onboardingRepository.findById(id).orElseThrow(() -> new RuntimeException("Onboarding não encontrado")));
@@ -194,16 +232,5 @@ public class OnboardingServiceImp implements OnboardingService {
     public Onboarding findBuddyByCollaboratorId(Long collaboratorId) {
         return onboardingRepository.findBuddyByCollaboratorId(collaboratorId);
     }
-
-    /*
-    @Override
-    public Optional<Long> findCollaboratorIdByManagerId(Long userId) {
-        return onboardingRepository.findCollaboratorIdByManagerId(userId);
-    }
-
-    @Override
-    public Optional<Long> findCollaboratorIdByBuddyId(Long userId) {
-        return onboardingRepository.findCollaboratorIdByBuddyId(userId);
-    }*/
 
 }

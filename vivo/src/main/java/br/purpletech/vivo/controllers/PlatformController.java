@@ -31,7 +31,7 @@ public class PlatformController {
         return ResponseEntity.ok(platform);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<Optional<Platform>> updatePlatform(@PathVariable Long id, @RequestBody Platform updatedPlatform){
         var platform = platformServiceImp.updatePlatform(id, updatedPlatform);
         return ResponseEntity.ok(platform);

@@ -37,7 +37,7 @@ public class TaskController {
         return ResponseEntity.ok(task);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<Optional<Task>> updateNameTask(@PathVariable Long id, @RequestBody Task updatedTask){
         var task = taskServiceImp.updateNameTask(id, updatedTask);
         return ResponseEntity.ok(task);

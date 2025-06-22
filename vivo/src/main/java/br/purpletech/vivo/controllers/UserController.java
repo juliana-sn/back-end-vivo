@@ -57,7 +57,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<Optional<User>> updateUser(@PathVariable Long id, User updateUser){
         var updatedUser = userServiceImp.updateUser(id, updateUser);
         return ResponseEntity.ok(updatedUser);
@@ -69,39 +69,31 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
+    @PostMapping("/{idSender}/chat/{idReceiver}/message")
+    public ResponseEntity<Chat> sendMessageToUser(@PathVariable Long idSender,
+                                                  @PathVariable Long idReceiver,
+                                                  @RequestBody Message message) {
+        var chat = userServiceImp.sendMessageToUser(idSender, idReceiver, message);
+        return ResponseEntity.ok(chat);
+    }
+
     @GetMapping("/{id}/chat/manager")
-    public ResponseEntity<Optional<Chat>> getChatManager(@PathVariable Long id){
+    public ResponseEntity<Chat> getChatManager(@PathVariable Long id){
         var chat = userServiceImp.getChatManager(id);
         return ResponseEntity.ok(chat);
     }
 
-    @PostMapping("/{id}/chat/manager/message")
-    public ResponseEntity<Chat> sendMessageManager(@PathVariable Long id, @RequestBody Message message){
-        var chat = userServiceImp.sendMessageManager(id, message);
-        return ResponseEntity.ok(chat);
-    }
-
     @GetMapping("/{id}/chat/buddy")
-    public ResponseEntity<Optional<Chat>> getChatBuddy(@PathVariable Long id){
+    public ResponseEntity<Chat> getChatBuddy(@PathVariable Long id){
         var chat = userServiceImp.getChatBuddy(id);
         return ResponseEntity.ok(chat);
     }
 
-    @PostMapping("/{id}/chat/buddy/message")
-    public ResponseEntity<Chat> sendMessageBuddy(@PathVariable Long id, @RequestBody Message message){
-        var chat = userServiceImp.sendMessageBuddy(id, message);
-        return ResponseEntity.ok(chat);
+    /*
+    @GetMapping("/{id1}/chat/{id2}")
+    public Chat getOrCreateChatWithUsers(Long id1, Long id2) {
+        return userServiceImp.getChatWithUsers(id1, id2);
     }
+    */
 
-    //@GetMapping("/{id}/chat/collaborator")
-    //public ResponseEntity<Optional<Chat>> getChatCollaborator(@PathVariable Long id){
-    //  var chat = userServiceImp.getChatCollaborator(id);
-    //   return ResponseEntity.ok(chat);
-    //}
-
-    //@PostMapping("/{id}/chat/collaborator/message")
-    //public ResponseEntity<Chat> sendMessageCollaborator(@PathVariable Long id, @RequestBody Message message){
-      //  var chat = userServiceImp.sendMessageCollaborator(id, message);
-        //return ResponseEntity.ok(chat);
-    //}
 }

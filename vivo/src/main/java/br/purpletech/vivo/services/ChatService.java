@@ -7,8 +7,6 @@ import br.purpletech.vivo.models.User;
 import java.util.Optional;
 
 public interface ChatService {
-    Chat createChat(User participant1, User participant2);
-    Optional<Chat> getChat(Long id);
-    Chat createMessages(Long id, Message message);
-    Optional<Chat> findByParticipant1AndParticipant2(Long participant1Id, Long participant2Id);
+    Chat findOrCreateChat(Long id1, Long id2);
+    Chat sendMessage(Long senderId, Long receiverId, Message message);
 }

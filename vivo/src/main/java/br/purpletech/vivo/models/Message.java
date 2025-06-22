@@ -21,7 +21,7 @@ public class Message {
     private LocalDateTime time = LocalDateTime.now();
 
     @ManyToOne
-    @JsonIgnore
+    @JsonIgnoreProperties({"lastName", "email", "password", "position", "telephone", "reports", "team", "onboarding"})
     @JoinColumn(name = "sender_id")
     private User sender;
 

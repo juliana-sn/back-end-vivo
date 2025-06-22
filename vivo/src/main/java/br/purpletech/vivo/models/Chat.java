@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity(name = "tb_chats")
 public class Chat {
@@ -12,15 +14,14 @@ public class Chat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JsonIgnoreProperties({"lastName", "email", "password", "position", "telephone", "reports", "role", "team", "onboarding"})
-    @JoinColumn(name = "sender_id")
-    private User participant1;
-
-    @ManyToOne
-    @JsonIgnoreProperties({"lastName", "email", "password", "position", "telephone", "reports", "role", "team", "onboarding"})
-    @JoinColumn(name = "receiver_id")
-    private User participant2;
+    @ManyToMany
+    @JsonIgnoreProperties({"lastName", "email", "password", "position", "telephone", "reports", "team", "onboarding"})
+    @JoinTable(
+            name = "chat_users",
+            joinColumns = @JoinColumn(name = "chat_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> participants = new HashSet<>();
 
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL)
     private List<Message> messages  = new ArrayList<>();
@@ -37,19 +38,11 @@ public class Chat {
         this.messages = messages;
     }
 
-    public User getParticipant1() {
-        return participant1;
+    public Set<User> getParticipants() {
+        return participants;
     }
 
-    public void setParticipant1(User participant1) {
-        this.participant1 = participant1;
-    }
-
-    public User getParticipant2() {
-        return participant2;
-    }
-
-    public void setParticipant2(User participant2) {
-        this.participant2 = participant2;
+    public void setParticipants(Set<User> participants) {
+        this.participants = participants;
     }
 }

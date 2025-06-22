@@ -29,6 +29,4 @@ public interface OnboardingService {
     Onboarding findManagerByCollaboratorId(Long collaboratorId);
     Onboarding findBuddyByCollaboratorId(Long collaboratorId);
 
-    /* Optional<Long> findCollaboratorIdByManagerId(Long userId);
-    Optional<Long> findCollaboratorIdByBuddyId(Long userId);*/
 }

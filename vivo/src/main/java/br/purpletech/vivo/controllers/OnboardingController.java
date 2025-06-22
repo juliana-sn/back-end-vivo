@@ -57,7 +57,7 @@ public class OnboardingController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<Optional<Onboarding>> updateOnboarding (@PathVariable Long id, @RequestBody Onboarding updatedOnboarding){
         var onboarding = onboardingServiceImp.updateOnboarding(id, updatedOnboarding);
         return ResponseEntity.ok(onboarding);
@@ -66,6 +66,12 @@ public class OnboardingController {
     @PostMapping("/{id}/users/{id_user}")
     public ResponseEntity<Onboarding> addUserOnboarding(@PathVariable Long id, @PathVariable Long id_user){
         var onboarding = onboardingServiceImp.addUser(id, id_user);
+        return ResponseEntity.ok(onboarding);
+    }
+
+    @PostMapping("/{id}/chat")
+    public ResponseEntity<Onboarding> createChats (@PathVariable Long id){
+        var onboarding = onboardingServiceImp.createChats(id);
         return ResponseEntity.ok(onboarding);
     }
 

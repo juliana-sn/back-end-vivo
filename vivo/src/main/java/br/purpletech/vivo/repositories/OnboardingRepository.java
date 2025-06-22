@@ -14,7 +14,4 @@ public interface OnboardingRepository extends JpaRepository<Onboarding, Long> {
 
     Onboarding findBuddyByCollaboratorId(Long collaboratorId);
 
-    /*
-    Optional<Long> findCollaboratorIdByManagerId(Long userId);
-    Optional<Long> findCollaboratorIdByBuddyId(Long userId); */
 }
