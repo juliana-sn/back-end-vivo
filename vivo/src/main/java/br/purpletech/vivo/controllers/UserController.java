@@ -89,11 +89,17 @@ public class UserController {
         return ResponseEntity.ok(chat);
     }
 
-    /*
-    @GetMapping("/{id1}/chat/{id2}")
-    public Chat getOrCreateChatWithUsers(Long id1, Long id2) {
-        return userServiceImp.getChatWithUsers(id1, id2);
+
+    @GetMapping("/{senderId}/chat/{receiverId}")
+    public ResponseEntity<Chat> getOrCreateChatWithUsers(@PathVariable Long senderId, @PathVariable Long receiverId) {
+        var chat = userServiceImp.getChatWithUsers(senderId, receiverId);
+        return ResponseEntity.ok(chat);
     }
-    */
+
+    @GetMapping("/{userId}/chats")
+    public ResponseEntity<List<Chat>> getAllChatsByUserId(@PathVariable Long userId){
+        var chats = userServiceImp.getAllChatsByUserId(userId);
+        return ResponseEntity.ok(chats);
+    }
 
 }

@@ -23,6 +23,8 @@ public class Platform {
     @JsonIgnore
     private Set<Team> teams = new HashSet<>();
 
+    private boolean standard;
+
     public Long getId() {
         return id;
     }

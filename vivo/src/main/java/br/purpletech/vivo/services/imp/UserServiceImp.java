@@ -74,8 +74,12 @@ public class UserServiceImp implements UserService {
         return chatServiceImp.findOrCreateChat(idUser, buddyId);
     }
 
-    public Chat getChatWithUsers(Long user1Id, Long user2Id) {
-        return chatServiceImp.findOrCreateChat(user1Id, user2Id);
+    public Chat getChatWithUsers(Long senderId, Long receiverId) {
+        return chatServiceImp.findOrCreateChat(senderId, receiverId);
+    }
+
+    public List<Chat> getAllChatsByUserId(Long idUser){
+        return chatServiceImp.getAllChatsByUserId(idUser);
     }
 
 
