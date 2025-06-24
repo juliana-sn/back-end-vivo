@@ -1,9 +1,14 @@
 package br.purpletech.vivo.controllers;
 
 
+import br.purpletech.vivo.dtos.chat.ChatDTO;
+import br.purpletech.vivo.dtos.message.MessageToCreateDTO;
+import br.purpletech.vivo.dtos.user.UserDTO;
+import br.purpletech.vivo.dtos.user.UserToCreateDTO;
 import br.purpletech.vivo.models.*;
 import br.purpletech.vivo.services.imp.TeamServiceImp;
 import br.purpletech.vivo.services.imp.UserServiceImp;
+import jakarta.validation.Valid;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,38 +22,20 @@ import java.util.Optional;
 public class UserController {
     private final UserServiceImp userServiceImp;
 
-    @Autowired
-    private TeamServiceImp teamServiceImp;
-
     public UserController(UserServiceImp userServiceImp){
         this.userServiceImp = userServiceImp;
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers(){
+    public ResponseEntity<List<UserDTO>> getAllUsers(){
         var users = userServiceImp.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<User>> getUserById(@PathVariable Long id){
+    public ResponseEntity<Optional<UserDTO>> getUserById(@PathVariable Long id){
         var user = userServiceImp.getById(id);
         return ResponseEntity.ok(user);
-    }
-
-    @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User userToCreate){
-        Optional<Team> teamOptional = Optional.ofNullable(teamServiceImp.getById(userToCreate.getTeam().getId()).orElseThrow(() ->
-                new RuntimeException("Equipe não encontrada")));
-
-        if(teamOptional.isPresent()){
-            Team team = teamOptional.get();
-            userToCreate.setTeam(team);
-        }
-
-        User createdUser = userServiceImp.createUser(userToCreate);
-
-        return ResponseEntity.ok(createdUser);
     }
 
     @DeleteMapping("/{id}")
@@ -58,46 +45,53 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Optional<User>> updateUser(@PathVariable Long id, User updateUser){
+    public ResponseEntity<Optional<UserDTO>> updateUser(@PathVariable Long id, UserToCreateDTO updateUser){
         var updatedUser = userServiceImp.updateUser(id, updateUser);
         return ResponseEntity.ok(updatedUser);
     }
 
+    @PatchMapping("/{id}/team")
+    public ResponseEntity<UserDTO> updateUserTeam(@PathVariable Long id, @RequestParam Long teamId) {
+        return userServiceImp.updateUserTeam(id, teamId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/role")
-    public ResponseEntity<List<User>> getUsersByRole(@RequestParam Role role){
+    public ResponseEntity<List<UserDTO>> getUsersByRole(@RequestParam Role role){
         var users = userServiceImp.getUsersByRole(role);
         return ResponseEntity.ok(users);
     }
 
     @PostMapping("/{idSender}/chat/{idReceiver}/message")
-    public ResponseEntity<Chat> sendMessageToUser(@PathVariable Long idSender,
-                                                  @PathVariable Long idReceiver,
-                                                  @RequestBody Message message) {
+    public ResponseEntity<ChatDTO> sendMessageToUser(@PathVariable Long idSender,
+                                                     @PathVariable Long idReceiver,
+                                                     @RequestBody MessageToCreateDTO message) {
         var chat = userServiceImp.sendMessageToUser(idSender, idReceiver, message);
         return ResponseEntity.ok(chat);
     }
 
     @GetMapping("/{id}/chat/manager")
-    public ResponseEntity<Chat> getChatManager(@PathVariable Long id){
+    public ResponseEntity<ChatDTO> getChatManager(@PathVariable Long id){
         var chat = userServiceImp.getChatManager(id);
         return ResponseEntity.ok(chat);
     }
 
     @GetMapping("/{id}/chat/buddy")
-    public ResponseEntity<Chat> getChatBuddy(@PathVariable Long id){
+    public ResponseEntity<ChatDTO> getChatBuddy(@PathVariable Long id){
         var chat = userServiceImp.getChatBuddy(id);
         return ResponseEntity.ok(chat);
     }
 
 
     @GetMapping("/{senderId}/chat/{receiverId}")
-    public ResponseEntity<Chat> getOrCreateChatWithUsers(@PathVariable Long senderId, @PathVariable Long receiverId) {
+    public ResponseEntity<ChatDTO> getOrCreateChatWithUsers(@PathVariable Long senderId, @PathVariable Long receiverId) {
         var chat = userServiceImp.getChatWithUsers(senderId, receiverId);
         return ResponseEntity.ok(chat);
     }
 
     @GetMapping("/{userId}/chats")
-    public ResponseEntity<List<Chat>> getAllChatsByUserId(@PathVariable Long userId){
+    public ResponseEntity<List<ChatDTO>> getAllChatsByUserId(@PathVariable Long userId){
         var chats = userServiceImp.getAllChatsByUserId(userId);
         return ResponseEntity.ok(chats);
     }

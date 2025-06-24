@@ -3,14 +3,14 @@ package br.purpletech.vivo.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity(name = "tb_messages")
-@Getter
-@Setter
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

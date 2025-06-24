@@ -1,5 +1,10 @@
 package br.purpletech.vivo.controllers;
 
+import br.purpletech.vivo.dtos.onboarding.OnboardingDTO;
+import br.purpletech.vivo.dtos.onboarding.OnboardingToCreateDTO;
+import br.purpletech.vivo.dtos.report.ReportDTO;
+import br.purpletech.vivo.dtos.report.ReportToCreateDTO;
+import br.purpletech.vivo.dtos.step.StepToCreateDTO;
 import br.purpletech.vivo.models.Onboarding;
 import br.purpletech.vivo.models.Report;
 import br.purpletech.vivo.models.Step;
@@ -22,32 +27,32 @@ public class OnboardingController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Onboarding>> getAllOnboardings(){
+    public ResponseEntity<List<OnboardingDTO>> getAllOnboardings(){
         var onboardings = onboardingServiceImp.getAllOnboarding();
         return ResponseEntity.ok(onboardings);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Onboarding>> getOnboardingById(@PathVariable Long id){
+    public ResponseEntity<Optional<OnboardingDTO>> getOnboardingById(@PathVariable Long id){
         var onboarding = onboardingServiceImp.getById(id);
         return ResponseEntity.ok(onboarding);
     }
 
     @PostMapping
-    public ResponseEntity<Onboarding> createOnboarding (@RequestBody Onboarding onboardingToCreate){
+    public ResponseEntity<OnboardingDTO> createOnboarding (@RequestBody OnboardingToCreateDTO onboardingToCreate){
         var onboarding = onboardingServiceImp.createOnboarding(onboardingToCreate);
         return ResponseEntity.ok(onboarding);
     }
 
-    @GetMapping("/manager/{id_manager}")
-    public ResponseEntity<Optional<List<Onboarding>>> getOnboardingByManagerId(@PathVariable Long id_manager){
-        var onboardings = onboardingServiceImp.findByManagerId(id_manager);
+    @GetMapping("/manager/{idManager}")
+    public ResponseEntity<Optional<List<OnboardingDTO>>> getOnboardingByManagerId(@PathVariable Long idManager){
+        var onboardings = onboardingServiceImp.findByManagerId(idManager);
         return ResponseEntity.ok(onboardings);
     }
 
     @GetMapping("/buddy/{id_buddy}")
-    public ResponseEntity<Optional<List<Onboarding>>> getOnboardingByBuddyId(@PathVariable Long id_buddy){
-        var onboardings = onboardingServiceImp.findByBuddyId(id_buddy);
+    public ResponseEntity<Optional<List<OnboardingDTO>>> getOnboardingByBuddyId(@PathVariable Long idBuddy){
+        var onboardings = onboardingServiceImp.findByBuddyId(idBuddy);
         return ResponseEntity.ok(onboardings);
     }
 
@@ -58,49 +63,49 @@ public class OnboardingController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Optional<Onboarding>> updateOnboarding (@PathVariable Long id, @RequestBody Onboarding updatedOnboarding){
+    public ResponseEntity<Optional<OnboardingDTO>> updateOnboarding (@PathVariable Long id, @RequestBody OnboardingToCreateDTO updatedOnboarding){
         var onboarding = onboardingServiceImp.updateOnboarding(id, updatedOnboarding);
         return ResponseEntity.ok(onboarding);
     }
 
-    @PostMapping("/{id}/users/{id_user}")
-    public ResponseEntity<Onboarding> addUserOnboarding(@PathVariable Long id, @PathVariable Long id_user){
-        var onboarding = onboardingServiceImp.addUser(id, id_user);
+    @PostMapping("/{id}/users/{idUser}")
+    public ResponseEntity<OnboardingDTO> addUserOnboarding(@PathVariable Long id, @PathVariable Long idUser){
+        var onboarding = onboardingServiceImp.addUser(id, idUser);
         return ResponseEntity.ok(onboarding);
     }
 
     @PostMapping("/{id}/chat")
-    public ResponseEntity<Onboarding> createChats (@PathVariable Long id){
+    public ResponseEntity<OnboardingDTO> createChats (@PathVariable Long id){
         var onboarding = onboardingServiceImp.createChats(id);
         return ResponseEntity.ok(onboarding);
     }
 
-    @DeleteMapping("/{id}/users/{id_user}")
-    public ResponseEntity<Onboarding> deleteUserOnboarding(@PathVariable Long id, @PathVariable Long id_user){
-        onboardingServiceImp.deleteUser(id, id_user);
+    @DeleteMapping("/{id}/users/{idUser}")
+    public ResponseEntity<Void> deleteUserOnboarding(@PathVariable Long id, @PathVariable Long idUser){
+        onboardingServiceImp.deleteUser(id, idUser);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/steps")
-    public ResponseEntity<Onboarding> addStepOnboarding(@PathVariable Long id, @RequestBody Step stepToCreate){
+    public ResponseEntity<OnboardingDTO> addStepOnboarding(@PathVariable Long id, @RequestBody StepToCreateDTO stepToCreate){
         var onboarding = onboardingServiceImp.addStep(id, stepToCreate);
         return ResponseEntity.ok(onboarding);
     }
 
-    @DeleteMapping("/{id}/steps/{id_step}")
-    public ResponseEntity<Onboarding> deleteStepOnboarding(@PathVariable Long id, @PathVariable Long id_step){
-        onboardingServiceImp.deleteStep(id, id_step);
+    @DeleteMapping("/{id}/steps/{idStep}")
+    public ResponseEntity<Void> deleteStepOnboarding(@PathVariable Long id, @PathVariable Long idStep){
+        onboardingServiceImp.deleteStep(id, idStep);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/reports")
-    public ResponseEntity<Onboarding> createReport (@PathVariable Long id, @RequestBody Report report){
+    public ResponseEntity<OnboardingDTO> createReport (@PathVariable Long id, @RequestBody ReportToCreateDTO report){
         var onboarding = onboardingServiceImp.addReport(id, report);
         return ResponseEntity.ok(onboarding);
     }
 
     @GetMapping("/{id}/reports")
-    public ResponseEntity<Optional<List<Report>>> getAllReports (@PathVariable Long id){
+    public ResponseEntity<Optional<List<ReportDTO>>> getAllReports (@PathVariable Long id){
         var reports = onboardingServiceImp.getReports(id);
         return ResponseEntity.ok(reports);
     }

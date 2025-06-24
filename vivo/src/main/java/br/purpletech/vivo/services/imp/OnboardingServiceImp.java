@@ -210,6 +210,7 @@ public class OnboardingServiceImp implements OnboardingService {
         if (onboardingOptional.isPresent()){
             Onboarding onboarding = onboardingOptional.get();
             report.setOnboarding(onboarding);
+            report.setCollaborator(onboarding.getCollaborator());
             reportRepository.save(report);
             onboarding.getReports().add(report);
             return onboardingRepository.save(onboarding);

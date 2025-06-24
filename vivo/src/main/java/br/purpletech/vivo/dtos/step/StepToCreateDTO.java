@@ -1,0 +1,11 @@
+package br.purpletech.vivo.dtos.step;
+
+import jakarta.validation.constraints.NotBlank;
+
+public record StepToCreateDTO(
+        @NotBlank(message = "Nome da etapa é obrigatório")
+        String name,
+
+        @NotBlank(message = "A descrição é obrigatória")
+        String description
+) {}

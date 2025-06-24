@@ -2,7 +2,9 @@ package br.purpletech.vivo.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -11,8 +13,6 @@ import java.util.List;
 import java.util.Set;
 
 @Entity(name = "tb_steps")
-@Getter
-@Setter
 public class Step {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +33,6 @@ public class Step {
     public Long getId() {
         return id;
     }
-
 
     public String getName() {
         return name;

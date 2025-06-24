@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
@@ -12,9 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Getter
-@Setter
-@AllArgsConstructor
 @Entity(name = "tb_onboardings")
 public class Onboarding {
     @Id
@@ -47,7 +45,6 @@ public class Onboarding {
     @OneToMany(mappedBy = "onboarding")
     @OrderBy("createdAt DESC")
     private List<Report> reports  = new ArrayList<>();
-
 
     public Long getId() {
         return id;

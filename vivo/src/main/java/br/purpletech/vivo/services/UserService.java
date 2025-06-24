@@ -1,5 +1,8 @@
 package br.purpletech.vivo.services;
 
+import br.purpletech.vivo.dtos.chat.ChatDTO;
+import br.purpletech.vivo.dtos.user.UserDTO;
+import br.purpletech.vivo.dtos.user.UserToCreateDTO;
 import br.purpletech.vivo.models.Chat;
 import br.purpletech.vivo.models.Message;
 import br.purpletech.vivo.models.Role;
@@ -9,15 +12,17 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
-    List<User> getAllUsers();
-    Optional<User> getById(Long id);
-    User createUser(User user);
-    Optional<User> updateUser(Long id, User updatedUser);
+    List<UserDTO> getAllUsers();
+    Optional<UserDTO> getById(Long id);
+    UserDTO createUser(UserToCreateDTO user);
+    Optional<UserDTO> updateUser(Long id, UserToCreateDTO updatedUser);
+    Optional<UserDTO> updateUserTeam(Long userId, Long newTeamId);
     boolean deleteUser(Long id);
-    List<User> getUsersByRole(Role role);
+    List<UserDTO> getUsersByRole(Role role);
 
-    Chat sendMessageToUser(Long senderId, Long receiverId, Message message);
-    Chat getChatManager(Long idUser);
-    Chat getChatBuddy(Long idUser);
-
+    ChatDTO sendMessageToUser(Long senderId, Long receiverId, Message message);
+    ChatDTO getChatManager(Long idUser);
+    ChatDTO getChatBuddy(Long idUser);
+    ChatDTO getChatWithUsers(Long senderId, Long receiverId);
+    List<ChatDTO> getAllChatsByUserId(Long idUser);
 }

@@ -1,5 +1,8 @@
 package br.purpletech.vivo.controllers;
 
+import br.purpletech.vivo.dtos.step.StepDTO;
+import br.purpletech.vivo.dtos.step.StepToCreateDTO;
+import br.purpletech.vivo.dtos.task.TaskToCreateDTO;
 import br.purpletech.vivo.models.Step;
 import br.purpletech.vivo.models.Task;
 import br.purpletech.vivo.services.imp.StepServiceImp;
@@ -20,25 +23,25 @@ public class StepController {
     }
 
     @PostMapping
-    public ResponseEntity<Step> createStep(@RequestBody Step stepToCreate){
+    public ResponseEntity<StepDTO> createStep(@RequestBody StepToCreateDTO stepToCreate){
         var step = stepServiceImp.createStep(stepToCreate);
         return ResponseEntity.ok(step);
     }
 
     @GetMapping
-    public ResponseEntity<List<Step>> getAllSteps(){
+    public ResponseEntity<List<StepDTO>> getAllSteps(){
         var steps = stepServiceImp.getAllSteps();
         return ResponseEntity.ok(steps);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Step>> getStepById(@PathVariable Long id){
+    public ResponseEntity<Optional<StepDTO>> getStepById(@PathVariable Long id){
         var step = stepServiceImp.getById(id);
         return ResponseEntity.ok(step);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Optional<Step>> updateStep(@PathVariable Long id, @RequestBody Step updatedStep){
+    public ResponseEntity<Optional<StepDTO>> updateStep(@PathVariable Long id, @RequestBody StepToCreateDTO updatedStep){
         var step = stepServiceImp.updateStep(id, updatedStep);
         return ResponseEntity.ok(step);
     }
@@ -50,14 +53,14 @@ public class StepController {
     }
 
     @PostMapping("/{id}/tasks")
-    public ResponseEntity<Step> addTask(@PathVariable Long id, @RequestBody Task task){
+    public ResponseEntity<StepDTO> addTask(@PathVariable Long id, @RequestBody TaskToCreateDTO task){
         var step = stepServiceImp.addTask(id, task);
         return ResponseEntity.ok(step);
     }
 
-    @DeleteMapping("/{id}/tasks/{id_task}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id, @PathVariable Long id_task){
-        stepServiceImp.deleteTask(id, id_task);
+    @DeleteMapping("/{id}/tasks/{idTask}")
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id, @PathVariable Long idTask){
+        stepServiceImp.deleteTask(id, idTask);
         return ResponseEntity.noContent().build();
     }
 }

@@ -46,6 +46,7 @@ public class PlatformServiceImp implements PlatformService {
         return platformRepository.findById(id).map(platform -> {
             platform.setName(updatedPlatform.getName());
             platform.setType_access(updatedPlatform.getType_access());
+            platform.setUrl(updatedPlatform.getUrl());
             return platformRepository.save(platform);
         });
     }

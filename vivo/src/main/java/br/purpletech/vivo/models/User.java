@@ -2,11 +2,7 @@ package br.purpletech.vivo.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.List;
@@ -27,10 +23,6 @@ public class User {
     private String position;
     private String telephone;
 
-    @OneToMany(mappedBy = "collaborator")
-    @OrderBy("createdAt DESC")
-    private List<Report> reports;
-
     @Enumerated(EnumType.STRING)
     private Role role; // collaborator, buddy or manager
 
@@ -44,11 +36,13 @@ public class User {
     @JoinTable(name = "user_onboarding", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "onboarding_id"))
     private Set<Onboarding> onboarding = new HashSet<>(); //add controle para colaborador ter somente um
 
+    @OneToMany(mappedBy = "collaborator")
+    @OrderBy("createdAt DESC")
+    private List<Report> reports;
 
     public Long getId() {
         return id;
     }
-
 
     public String getName() {
         return name;
@@ -96,6 +90,14 @@ public class User {
 
     public void setTelephone(String telephone) {
         this.telephone = telephone;
+    }
+
+    public List<Report> getReports() {
+        return reports;
+    }
+
+    public void setReports(List<Report> reports) {
+        this.reports = reports;
     }
 
     public Role getRole() {

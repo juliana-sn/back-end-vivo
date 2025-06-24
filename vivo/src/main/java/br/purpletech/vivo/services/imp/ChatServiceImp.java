@@ -1,5 +1,6 @@
 package br.purpletech.vivo.services.imp;
 
+import br.purpletech.vivo.dtos.chat.ChatDTO;
 import br.purpletech.vivo.models.Chat;
 import br.purpletech.vivo.models.Message;
 import br.purpletech.vivo.models.User;
@@ -7,6 +8,7 @@ import br.purpletech.vivo.repositories.ChatRepository;
 import br.purpletech.vivo.repositories.MessageRepository;
 import br.purpletech.vivo.repositories.UserRepository;
 import br.purpletech.vivo.services.ChatService;
+import br.purpletech.vivo.utils.EntityDtoConverter;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,11 @@ public class ChatServiceImp implements ChatService {
 
     public ChatServiceImp(ChatRepository chatRepository) {
         this.chatRepository = chatRepository;
+    }
+
+    public ChatDTO findOrCreateChatDTO(Long id1, Long id2) {
+        Chat chat = findOrCreateChat(id1, id2);
+        return EntityDtoConverter.toChatDTO(chat);
     }
 
     public Chat findOrCreateChat(Long id1, Long id2) {
@@ -60,7 +67,7 @@ public class ChatServiceImp implements ChatService {
     }
 
 
-    public Chat sendMessage(Long senderId, Long receiverId, Message message) {
+    public ChatDTO sendMessage(Long senderId, Long receiverId, Message message) {
         Chat chat = findOrCreateChat(senderId, receiverId);
         User sender = userRepository.findById(senderId).orElseThrow();
 
@@ -69,13 +76,13 @@ public class ChatServiceImp implements ChatService {
 
         messageRepository.save(message);
         chat.getMessages().add(message);
-        return chatRepository.save(chat);
+        Chat chatSaved = chatRepository.save(chat);
+        return EntityDtoConverter.toChatDTO(chatSaved);
     }
 
-    public List<Chat> getAllChatsByUserId(Long userId){
-        return chatRepository.findByParticipantsId(userId);
+    public List<ChatDTO> getAllChatsByUserId(Long userId){
+        return chatRepository.findByParticipantsId(userId).stream()
+                .map(EntityDtoConverter::toChatDTO)
+                .collect(Collectors.toList());
     }
-
-
-
 }

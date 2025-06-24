@@ -1,5 +1,10 @@
 package br.purpletech.vivo.services;
 
+import br.purpletech.vivo.dtos.onboarding.OnboardingDTO;
+import br.purpletech.vivo.dtos.onboarding.OnboardingToCreateDTO;
+import br.purpletech.vivo.dtos.report.ReportDTO;
+import br.purpletech.vivo.dtos.report.ReportToCreateDTO;
+import br.purpletech.vivo.dtos.step.StepToCreateDTO;
 import br.purpletech.vivo.models.Onboarding;
 import br.purpletech.vivo.models.Report;
 import br.purpletech.vivo.models.Step;
@@ -9,24 +14,24 @@ import java.util.List;
 import java.util.Optional;
 
 public interface OnboardingService {
-    Onboarding createOnboarding(Onboarding onboardingToCreate);
-    List<Onboarding> getAllOnboarding();
-    Optional<Onboarding> getById(Long id);
+    OnboardingDTO createOnboarding(OnboardingToCreateDTO onboardingToCreate);
+    List<OnboardingDTO> getAllOnboarding();
+    Optional<OnboardingDTO> getById(Long id);
     boolean deleteOnboarding(Long id);
-    Optional<Onboarding> updateOnboarding(Long id, Onboarding updatedOnboarding);
-    Optional<List<Onboarding>> findByManagerId(Long userId);
-    Optional<List<Onboarding>> findByBuddyId(Long userId);
+    Optional<OnboardingDTO> updateOnboarding(Long id, OnboardingToCreateDTO updatedOnboarding);
+    Optional<List<OnboardingDTO>> findByManagerId(Long userId);
+    Optional<List<OnboardingDTO>> findByBuddyId(Long userId);
 
-    Onboarding addUser(Long id, Long id_user);
-    boolean deleteUser(Long id, Long id_user);
+    OnboardingDTO addUser(Long id, Long idUser);
+    boolean deleteUser(Long id, Long idUser);
 
-    Onboarding addStep(Long id, Step step);
-    boolean deleteStep(Long id, Long id_step);
+    OnboardingDTO addStep(Long id, StepToCreateDTO step);
+    boolean deleteStep(Long id, Long idStep);
 
-    Onboarding addReport(Long id, Report report);
-    Optional<List<Report>> getReports (Long id);
+    OnboardingDTO addReport(Long id, ReportToCreateDTO report);
+    Optional<List<ReportDTO>> getReports (Long id);
 
-    Onboarding findManagerByCollaboratorId(Long collaboratorId);
-    Onboarding findBuddyByCollaboratorId(Long collaboratorId);
+    OnboardingDTO findManagerByCollaboratorId(Long collaboratorId);
+    OnboardingDTO findBuddyByCollaboratorId(Long collaboratorId);
 
 }

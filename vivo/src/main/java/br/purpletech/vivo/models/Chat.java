@@ -2,6 +2,10 @@ package br.purpletech.vivo.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,13 +34,6 @@ public class Chat {
         return id;
     }
 
-    public List<Message> getMessages() {
-        return messages;
-    }
-
-    public void setMessages(List<Message> messages) {
-        this.messages = messages;
-    }
 
     public Set<User> getParticipants() {
         return participants;
@@ -44,5 +41,13 @@ public class Chat {
 
     public void setParticipants(Set<User> participants) {
         this.participants = participants;
+    }
+
+    public List<Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
     }
 }
