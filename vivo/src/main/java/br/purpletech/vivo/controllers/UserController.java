@@ -45,7 +45,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Optional<UserDTO>> updateUser(@PathVariable Long id, UserToCreateDTO updateUser){
+    public ResponseEntity<Optional<UserDTO>> updateUser(@PathVariable Long id, @Valid UserToCreateDTO updateUser){
         var updatedUser = userServiceImp.updateUser(id, updateUser);
         return ResponseEntity.ok(updatedUser);
     }
@@ -66,7 +66,7 @@ public class UserController {
     @PostMapping("/{idSender}/chat/{idReceiver}/message")
     public ResponseEntity<ChatDTO> sendMessageToUser(@PathVariable Long idSender,
                                                      @PathVariable Long idReceiver,
-                                                     @RequestBody MessageToCreateDTO message) {
+                                                     @RequestBody @Valid MessageToCreateDTO message) {
         var chat = userServiceImp.sendMessageToUser(idSender, idReceiver, message);
         return ResponseEntity.ok(chat);
     }

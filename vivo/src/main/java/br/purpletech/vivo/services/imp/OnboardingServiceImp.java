@@ -1,17 +1,26 @@
 package br.purpletech.vivo.services.imp;
 
+import br.purpletech.vivo.dtos.onboarding.OnboardingDTO;
+import br.purpletech.vivo.dtos.onboarding.OnboardingToCreateDTO;
+import br.purpletech.vivo.dtos.report.ReportDTO;
+import br.purpletech.vivo.dtos.report.ReportToCreateDTO;
+import br.purpletech.vivo.dtos.step.StepToCreateDTO;
 import br.purpletech.vivo.models.*;
 import br.purpletech.vivo.repositories.OnboardingRepository;
 import br.purpletech.vivo.repositories.ReportRepository;
 import br.purpletech.vivo.repositories.StepRepository;
 import br.purpletech.vivo.repositories.UserRepository;
 import br.purpletech.vivo.services.OnboardingService;
+import br.purpletech.vivo.utils.EntityDtoConverter;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class OnboardingServiceImp implements OnboardingService {
@@ -33,21 +42,27 @@ public class OnboardingServiceImp implements OnboardingService {
         this.onboardingRepository = onboardingRepository;
     }
 
+    @Transactional
     @Override
-    public Onboarding createOnboarding(Onboarding onboardingToCreate) {
-        return onboardingRepository.save(onboardingToCreate);
+    public OnboardingDTO createOnboarding(OnboardingToCreateDTO onboardingToCreate) {
+        Onboarding onboarding = EntityDtoConverter.toOnboarding(onboardingToCreate);
+        Onboarding onboardingSaved = onboardingRepository.save(onboarding);
+        return EntityDtoConverter.toOnboardingDTO(onboardingSaved);
     }
 
     @Override
-    public List<Onboarding> getAllOnboarding() {
-        return onboardingRepository.findAll();
+    public List<OnboardingDTO> getAllOnboarding() {
+        return onboardingRepository.findAll().stream()
+                .map(EntityDtoConverter::toOnboardingDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Optional<Onboarding> getById(Long id) {
-        return onboardingRepository.findById(id);
+    public Optional<OnboardingDTO> getById(Long id) {
+        return onboardingRepository.findById(id).map(EntityDtoConverter::toOnboardingDTO);
     }
 
+    @Transactional
     @Override
     public boolean deleteOnboarding(Long id) {
         return onboardingRepository.findById(id).map(onboarding -> {
@@ -72,30 +87,41 @@ public class OnboardingServiceImp implements OnboardingService {
         }).orElse(false);
     }
 
+    @Transactional
     @Override
-    public Optional<Onboarding> updateOnboarding(Long id, Onboarding updatedOnboarding) {
+    public Optional<OnboardingDTO> updateOnboarding(Long id, OnboardingToCreateDTO updatedOnboarding) {
         return onboardingRepository.findById(id).map(onboarding ->{
-            onboarding.setDt_begin(updatedOnboarding.getDt_begin());
-            onboarding.setDt_end(updatedOnboarding.getDt_end());
-            onboarding.setActive(updatedOnboarding.isActive());
-            return onboardingRepository.save(onboarding);
+            onboarding.setDt_begin(updatedOnboarding.dt_begin());
+            onboarding.setDt_end(updatedOnboarding.dt_end());
+            onboarding.setActive(updatedOnboarding.active());
+            Onboarding onboardingSaved = onboardingRepository.save(onboarding);
+            return EntityDtoConverter.toOnboardingDTO(onboardingSaved);
         });
     }
 
     @Override
-    public Optional<List<Onboarding>> findByManagerId(Long userId) {
-        return onboardingRepository.findByManagerId(userId);
+    public Optional<List<OnboardingDTO>> findByManagerId(Long userId) {
+        return onboardingRepository.findByManagerId(userId)
+                .map(onboardings -> onboardings.stream()
+                        .map(EntityDtoConverter::toOnboardingDTO)
+                        .toList()
+                );
     }
 
     @Override
-    public Optional<List<Onboarding>> findByBuddyId(Long userId) {
-        return onboardingRepository.findByBuddyId(userId);
+    public Optional<List<OnboardingDTO>> findByBuddyId(Long userId) {
+        return onboardingRepository.findByBuddyId(userId)
+                .map(onboardings -> onboardings.stream()
+                        .map(EntityDtoConverter::toOnboardingDTO)
+                        .toList()
+                );
     }
 
+    @Transactional
     @Override
-    public Onboarding addUser(Long id, Long id_user) {
+    public OnboardingDTO addUser(Long id, Long idUser) {
         Optional<Onboarding> onboardingOptional = Optional.ofNullable(onboardingRepository.findById(id).orElseThrow(() -> new RuntimeException("Onboarding não encontrado")));
-        Optional<User> userOptional = Optional.ofNullable(userRepository.findById(id_user).orElseThrow(() -> new RuntimeException("Usuário não encontrado")));
+        Optional<User> userOptional = Optional.ofNullable(userRepository.findById(idUser).orElseThrow(() -> new RuntimeException("Usuário não encontrado")));
 
         if(onboardingOptional.isPresent() && userOptional.isPresent()) {
             Onboarding onboarding = onboardingOptional.get();
@@ -110,12 +136,14 @@ public class OnboardingServiceImp implements OnboardingService {
                 onboarding.setCollaborator(user);
             }
 
-            return onboardingRepository.save(onboarding);
+            Onboarding onboardingSaved = onboardingRepository.save(onboarding);
+            return EntityDtoConverter.toOnboardingDTO(onboardingSaved);
         }else{
             return null;
         }
     }
 
+    @Transactional
     @Override
     public boolean deleteUser(Long id, Long id_user) {
         Optional<Onboarding> onboardingOptional = Optional.ofNullable(onboardingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Onboarding não encontrado")));
@@ -145,7 +173,7 @@ public class OnboardingServiceImp implements OnboardingService {
         }
     }
 
-    public Onboarding createChats(Long id) {
+    public OnboardingDTO createChats(Long id) {
         Onboarding onboarding = onboardingRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Onboarding não encontrado para o ID " + id));
 
@@ -161,27 +189,30 @@ public class OnboardingServiceImp implements OnboardingService {
             chatServiceImp.findOrCreateChat(collaborator.getId(), buddy.getId());
         }
 
-        return onboarding;
+        return EntityDtoConverter.toOnboardingDTO(onboarding);
     }
 
+    @Transactional
     @Override
-    public Onboarding addStep(Long id, Step step) {
+    public OnboardingDTO addStep(Long id, StepToCreateDTO stepToCreate) {
         Optional<Onboarding> onboardingOptional = Optional.ofNullable(onboardingRepository.findById(id).orElseThrow(() -> new RuntimeException("Onboarding não encontrado")));
         if(onboardingOptional.isPresent()) {
             Onboarding onboarding = onboardingOptional.get();
-
+            Step step = EntityDtoConverter.toStep(stepToCreate);
             Step savedStep = stepRepository.save(step);
 
             savedStep.setOnboarding(onboarding);
             stepRepository.save(savedStep);
             onboarding.getSteps().add(step);
 
-            return onboardingRepository.save(onboarding);
+            Onboarding onboardingSaved = onboardingRepository.save(onboarding);
+            return EntityDtoConverter.toOnboardingDTO(onboardingSaved);
         }else{
             return null;
         }
     }
 
+    @Transactional
     @Override
     public boolean deleteStep(Long id, Long id_step) {
         Optional<Onboarding> onboardingOptional = Optional.ofNullable(onboardingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Onboarding não encontrado")));
@@ -203,35 +234,74 @@ public class OnboardingServiceImp implements OnboardingService {
         }
     }
 
+    @Transactional
     @Override
-    public Onboarding addReport(Long id, Report report) {
+    public OnboardingDTO addReport(Long id, ReportToCreateDTO reportToCreate) {
         Optional<Onboarding> onboardingOptional = Optional.ofNullable(onboardingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Onboarding não encontrado")));
 
         if (onboardingOptional.isPresent()){
             Onboarding onboarding = onboardingOptional.get();
+            Report report = EntityDtoConverter.toReport(reportToCreate);
             report.setOnboarding(onboarding);
             report.setCollaborator(onboarding.getCollaborator());
             reportRepository.save(report);
             onboarding.getReports().add(report);
-            return onboardingRepository.save(onboarding);
+            Onboarding onboardingSaved = onboardingRepository.save(onboarding);
+            return EntityDtoConverter.toOnboardingDTO(onboardingSaved);
         }else {
             return null;
         }
     }
 
     @Override
-    public Optional<List<Report>> getReports(Long id) {
-        return reportRepository.findAllByOnboardingId(id);
+    public Optional<List<ReportDTO>> getReports(Long id) {
+        return reportRepository.findAllByOnboardingId(id)
+                .map(reports -> reports.stream()
+                        .map(EntityDtoConverter::toReportDTO)
+                        .toList()
+                );
     }
 
     @Override
-    public Onboarding findManagerByCollaboratorId(Long collaboratorId) {
-        return onboardingRepository.findManagerByCollaboratorId(collaboratorId);
+    public OnboardingDTO findManagerByCollaboratorId(Long collaboratorId) {
+        Onboarding onboarding = onboardingRepository.findManagerByCollaboratorId(collaboratorId);
+        return EntityDtoConverter.toOnboardingDTO(onboarding);
     }
 
     @Override
-    public Onboarding findBuddyByCollaboratorId(Long collaboratorId) {
-        return onboardingRepository.findBuddyByCollaboratorId(collaboratorId);
+    public OnboardingDTO findBuddyByCollaboratorId(Long collaboratorId) {
+        Onboarding onboarding = onboardingRepository.findBuddyByCollaboratorId(collaboratorId);
+        return EntityDtoConverter.toOnboardingDTO(onboarding);
     }
+
+    @Transactional
+    public OnboardingDTO getNextStep(Long onboardingId) {
+        Onboarding onboarding = onboardingRepository.findById(onboardingId)
+                .orElseThrow(() -> new EntityNotFoundException("Onboarding não encontrado"));
+
+        List<Step> steps = onboarding.getSteps().stream()
+                .sorted(Comparator.comparing(Step::getOrder)) // assumindo que Step tem campo "order"
+                .toList();
+
+        if (onboarding.getCurrentStep() == null && !steps.isEmpty()) {
+            onboarding.setCurrentStep(steps.get(0));
+        } else {
+            for (int i = 0; i < steps.size(); i++) {
+                if (steps.get(i).getId().equals(onboarding.getCurrentStep().getId())) {
+                    if (i + 1 < steps.size()) {
+                        onboarding.setCurrentStep(steps.get(i + 1));
+                    } else {
+                        onboarding.setCurrentStep(null); // acabou as etapas
+                    }
+                    break;
+                }
+            }
+        }
+
+        onboardingRepository.save(onboarding);
+
+        return EntityDtoConverter.toOnboardingDTO(onboarding);
+    }
+
 
 }

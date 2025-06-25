@@ -7,6 +7,7 @@ import br.purpletech.vivo.models.Platform;
 import br.purpletech.vivo.models.Team;
 import br.purpletech.vivo.models.User;
 import br.purpletech.vivo.services.imp.TeamServiceImp;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,13 +37,13 @@ public class TeamController {
     }
 
     @PostMapping
-    public ResponseEntity<TeamDTO> createTeam(@RequestBody TeamToCreateDTO teamToCreate){
+    public ResponseEntity<TeamDTO> createTeam(@RequestBody @Valid TeamToCreateDTO teamToCreate){
         var createdTeam = teamServiceImp.createTeam(teamToCreate);
         return ResponseEntity.ok(createdTeam);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Optional<TeamDTO>> updateTeam(@PathVariable Long id, @RequestBody TeamToCreateDTO updateTeam){
+    public ResponseEntity<Optional<TeamDTO>> updateTeam(@PathVariable Long id, @RequestBody @Valid TeamToCreateDTO updateTeam){
         var updatedTeam = teamServiceImp.updateNameTeam(id, updateTeam);
         return ResponseEntity.ok(updatedTeam);
     }
@@ -54,7 +55,7 @@ public class TeamController {
     }
 
     @PostMapping("/{id}/users")
-    public ResponseEntity<TeamDTO> addUser(@PathVariable Long id, @RequestBody UserToCreateDTO userToCreate){
+    public ResponseEntity<TeamDTO> addUser(@PathVariable Long id, @RequestBody @Valid UserToCreateDTO userToCreate){
         var team = teamServiceImp.addUser(id, userToCreate);
         return ResponseEntity.ok(team);
     }
@@ -71,9 +72,9 @@ public class TeamController {
         return ResponseEntity.ok(team);
     }
 
-    @DeleteMapping("/{id}/platforms/{id_platform}")
-    public ResponseEntity<Void> deletePlatform(@PathVariable Long id, @PathVariable Long id_platform){
-        teamServiceImp.deletePlatform(id, id_platform);
+    @DeleteMapping("/{id}/platforms/{idPlatform}")
+    public ResponseEntity<Void> deletePlatform(@PathVariable Long id, @PathVariable Long idPlatform){
+        teamServiceImp.deletePlatform(id, idPlatform);
         return ResponseEntity.noContent().build();
     }
 }

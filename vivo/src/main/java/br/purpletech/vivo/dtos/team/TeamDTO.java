@@ -9,6 +9,6 @@ public record TeamDTO(
         Long id,
         String name,
         String department,
-        List<PlatformDTO> platforms,
+        List<Long> platformIds,
         List<UserDTO> users
 ) {}

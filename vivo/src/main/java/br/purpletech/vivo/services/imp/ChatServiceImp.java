@@ -12,6 +12,7 @@ import br.purpletech.vivo.utils.EntityDtoConverter;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +37,7 @@ public class ChatServiceImp implements ChatService {
         return EntityDtoConverter.toChatDTO(chat);
     }
 
+    @Transactional
     public Chat findOrCreateChat(Long id1, Long id2) {
         if (id1 == null || id2 == null) {
             throw new IllegalArgumentException("IDs não podem ser nulos");
@@ -67,6 +69,7 @@ public class ChatServiceImp implements ChatService {
     }
 
 
+    @Transactional
     public ChatDTO sendMessage(Long senderId, Long receiverId, Message message) {
         Chat chat = findOrCreateChat(senderId, receiverId);
         User sender = userRepository.findById(senderId).orElseThrow();

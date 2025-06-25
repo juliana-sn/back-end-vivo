@@ -10,6 +10,7 @@ import br.purpletech.vivo.models.Report;
 import br.purpletech.vivo.models.Step;
 import br.purpletech.vivo.models.User;
 import br.purpletech.vivo.services.imp.OnboardingServiceImp;
+import jakarta.validation.Valid;
 import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +40,7 @@ public class OnboardingController {
     }
 
     @PostMapping
-    public ResponseEntity<OnboardingDTO> createOnboarding (@RequestBody OnboardingToCreateDTO onboardingToCreate){
+    public ResponseEntity<OnboardingDTO> createOnboarding (@RequestBody @Valid OnboardingToCreateDTO onboardingToCreate){
         var onboarding = onboardingServiceImp.createOnboarding(onboardingToCreate);
         return ResponseEntity.ok(onboarding);
     }
@@ -63,7 +64,7 @@ public class OnboardingController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Optional<OnboardingDTO>> updateOnboarding (@PathVariable Long id, @RequestBody OnboardingToCreateDTO updatedOnboarding){
+    public ResponseEntity<Optional<OnboardingDTO>> updateOnboarding (@PathVariable Long id, @RequestBody @Valid OnboardingToCreateDTO updatedOnboarding){
         var onboarding = onboardingServiceImp.updateOnboarding(id, updatedOnboarding);
         return ResponseEntity.ok(onboarding);
     }
@@ -87,7 +88,7 @@ public class OnboardingController {
     }
 
     @PostMapping("/{id}/steps")
-    public ResponseEntity<OnboardingDTO> addStepOnboarding(@PathVariable Long id, @RequestBody StepToCreateDTO stepToCreate){
+    public ResponseEntity<OnboardingDTO> addStepOnboarding(@PathVariable Long id, @RequestBody @Valid StepToCreateDTO stepToCreate){
         var onboarding = onboardingServiceImp.addStep(id, stepToCreate);
         return ResponseEntity.ok(onboarding);
     }
@@ -98,8 +99,14 @@ public class OnboardingController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/{id}/next-step")
+    public ResponseEntity<OnboardingDTO> advanceToNextStep(@PathVariable Long id) {
+        OnboardingDTO updatedOnboarding = onboardingServiceImp.getNextStep(id);
+        return ResponseEntity.ok(updatedOnboarding);
+    }
+
     @PostMapping("/{id}/reports")
-    public ResponseEntity<OnboardingDTO> createReport (@PathVariable Long id, @RequestBody ReportToCreateDTO report){
+    public ResponseEntity<OnboardingDTO> createReport (@PathVariable Long id, @RequestBody @Valid ReportToCreateDTO report){
         var onboarding = onboardingServiceImp.addReport(id, report);
         return ResponseEntity.ok(onboarding);
     }

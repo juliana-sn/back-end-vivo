@@ -18,6 +18,7 @@ public record UserToCreateDTO(
         String email,
 
         @Size(min = 6, message = "A senha deve ter pelo menos 6 caracteres")
+                @NotBlank(message = "A senha é obrigatória")
         String password,
 
         @NotBlank(message = "Cargo é obrigatório")

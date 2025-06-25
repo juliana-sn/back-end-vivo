@@ -17,5 +17,6 @@ public record OnboardingDTO(
         UserDTO buddy,
         UserDTO collaborator,
         List<StepDTO> steps,
-        List<ReportDTO> reports
+        List<ReportDTO> reports,
+        StepDTO currentStep
 ) {}

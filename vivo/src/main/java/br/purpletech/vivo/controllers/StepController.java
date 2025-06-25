@@ -6,6 +6,7 @@ import br.purpletech.vivo.dtos.task.TaskToCreateDTO;
 import br.purpletech.vivo.models.Step;
 import br.purpletech.vivo.models.Task;
 import br.purpletech.vivo.services.imp.StepServiceImp;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,7 @@ public class StepController {
     }
 
     @PostMapping
-    public ResponseEntity<StepDTO> createStep(@RequestBody StepToCreateDTO stepToCreate){
+    public ResponseEntity<StepDTO> createStep(@RequestBody @Valid StepToCreateDTO stepToCreate){
         var step = stepServiceImp.createStep(stepToCreate);
         return ResponseEntity.ok(step);
     }
@@ -41,7 +42,7 @@ public class StepController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Optional<StepDTO>> updateStep(@PathVariable Long id, @RequestBody StepToCreateDTO updatedStep){
+    public ResponseEntity<Optional<StepDTO>> updateStep(@PathVariable Long id, @RequestBody @Valid StepToCreateDTO updatedStep){
         var step = stepServiceImp.updateStep(id, updatedStep);
         return ResponseEntity.ok(step);
     }
@@ -53,7 +54,7 @@ public class StepController {
     }
 
     @PostMapping("/{id}/tasks")
-    public ResponseEntity<StepDTO> addTask(@PathVariable Long id, @RequestBody TaskToCreateDTO task){
+    public ResponseEntity<StepDTO> addTask(@PathVariable Long id, @RequestBody @Valid TaskToCreateDTO task){
         var step = stepServiceImp.addTask(id, task);
         return ResponseEntity.ok(step);
     }

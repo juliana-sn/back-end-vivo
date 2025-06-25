@@ -12,7 +12,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Entity(name = "tb_steps")
+@Entity
+@Table(
+        name = "tb_steps",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"onboarding_id", "step_order"})
+)
 public class Step {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,6 +24,8 @@ public class Step {
 
     private String name;
     private String description;
+
+    private Integer stepOrder; // define a sequência
 
     @ManyToOne
     @JsonIgnoreProperties("steps")
@@ -64,5 +70,13 @@ public class Step {
 
     public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
+    }
+
+    public Integer getOrder() {
+        return stepOrder;
+    }
+
+    public void setOrder(Integer order) {
+        this.stepOrder = order;
     }
 }

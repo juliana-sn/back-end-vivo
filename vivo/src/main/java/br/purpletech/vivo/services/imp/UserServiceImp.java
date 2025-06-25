@@ -1,15 +1,19 @@
 package br.purpletech.vivo.services.imp;
 
 import br.purpletech.vivo.dtos.chat.ChatDTO;
+import br.purpletech.vivo.dtos.message.MessageToCreateDTO;
+import br.purpletech.vivo.dtos.onboarding.OnboardingDTO;
 import br.purpletech.vivo.dtos.user.UserDTO;
 import br.purpletech.vivo.dtos.user.UserToCreateDTO;
 import br.purpletech.vivo.models.*;
+import br.purpletech.vivo.repositories.TeamRepository;
 import br.purpletech.vivo.repositories.UserRepository;
 import br.purpletech.vivo.services.UserService;
 import br.purpletech.vivo.utils.EntityDtoConverter;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +31,7 @@ public class UserServiceImp implements UserService {
     @Autowired ChatServiceImp chatServiceImp;
 
     @Autowired
-    private TeamServiceImp teamServiceImp;
+    private TeamRepository teamRepository;
 
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll()
@@ -41,6 +45,7 @@ public class UserServiceImp implements UserService {
                 .map(EntityDtoConverter::toUserDTO);
     }
 
+    @Transactional
     public Optional<UserDTO> updateUser(Long id, UserToCreateDTO updatedUser) {
         return userRepository.findById(id).map(user -> {
             user.setEmail(updatedUser.email());
@@ -55,23 +60,32 @@ public class UserServiceImp implements UserService {
         });
     }
 
+    @Transactional
     public Optional<UserDTO> updateUserTeam(Long userId, Long newTeamId) {
         return userRepository.findById(userId).map(user -> {
-            Optional<Team> teamOptional = Optional.ofNullable(teamServiceImp.getById(newTeamId).orElseThrow(() -> new EntityNotFoundException("Equipe não encontrada")));
-
-            if(teamOptional.isPresent()){
-                Team team = teamOptional.get();
-                team.getUsers().add(user);
-                user.setTeam(team);
-                User updated = userRepository.save(user);
-                return EntityDtoConverter.toUserDTO(updated);
-            }else{
-                return null;
+            // Remove da equipe atual
+            Team currentTeam = user.getTeam();
+            if (currentTeam != null) {
+                currentTeam.getUsers().remove(user);
+                teamRepository.save(currentTeam);
             }
+
+            Team newTeam = teamRepository.findById(newTeamId)
+                    .orElseThrow(() -> new EntityNotFoundException("Equipe não encontrada"));
+
+            user.setTeam(newTeam);
+            newTeam.getUsers().add(user);
+
+            teamRepository.save(newTeam);
+            User updatedUser = userRepository.save(user);
+
+            return EntityDtoConverter.toUserDTO(updatedUser);
         });
     }
 
 
+
+    @Transactional
     public boolean deleteUser(Long id) {
         return userRepository.findById(id).map(user -> {
             userRepository.delete(user);
@@ -86,24 +100,29 @@ public class UserServiceImp implements UserService {
                 .collect(Collectors.toList());
     }
 
-    public ChatDTO sendMessageToUser(Long senderId, Long receiverId, Message message) {
+    @Transactional
+    public ChatDTO sendMessageToUser(Long senderId, Long receiverId, MessageToCreateDTO messageToCreate) {
+        Message message = EntityDtoConverter.toMessage(messageToCreate);
         return chatServiceImp.sendMessage(senderId, receiverId, message);
     }
 
     public ChatDTO getChatManager(Long idUser) {
-        Onboarding onboarding = onboardingServiceImp.findManagerByCollaboratorId(idUser);
-        Long managerId = onboarding.getManager().getId();
-        return chatServiceImp.findOrCreateChat(idUser, managerId);
+        OnboardingDTO onboarding = onboardingServiceImp.findManagerByCollaboratorId(idUser);
+        Long managerId = onboarding.manager().id();
+        Chat chatFound = chatServiceImp.findOrCreateChat(idUser, managerId);
+        return EntityDtoConverter.toChatDTO(chatFound);
     }
 
     public ChatDTO getChatBuddy(Long idUser) {
-        Onboarding onboarding = onboardingServiceImp.findBuddyByCollaboratorId(idUser);
-        Long buddyId = onboarding.getBuddy().getId();
-        return chatServiceImp.findOrCreateChat(idUser, buddyId);
+        OnboardingDTO onboarding = onboardingServiceImp.findBuddyByCollaboratorId(idUser);
+        Long buddyId = onboarding.buddy().id();
+        Chat chatFound = chatServiceImp.findOrCreateChat(idUser, buddyId);
+        return EntityDtoConverter.toChatDTO(chatFound);
     }
 
     public ChatDTO getChatWithUsers(Long senderId, Long receiverId) {
-        return chatServiceImp.findOrCreateChat(senderId, receiverId);
+        Chat chatFound = chatServiceImp.findOrCreateChat(senderId, receiverId);
+        return EntityDtoConverter.toChatDTO(chatFound);
     }
 
     public List<ChatDTO> getAllChatsByUserId(Long idUser){

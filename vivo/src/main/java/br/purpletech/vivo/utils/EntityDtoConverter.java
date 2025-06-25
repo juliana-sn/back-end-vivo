@@ -11,10 +11,12 @@ import br.purpletech.vivo.dtos.task.*;
 import br.purpletech.vivo.dtos.team.*;
 import br.purpletech.vivo.models.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class EntityDtoConverter {
-    // 🛠️ User
+    //User
     public static User toUser(UserToCreateDTO dto) {
         User user = new User();
         user.setName(dto.name());
@@ -28,6 +30,9 @@ public class EntityDtoConverter {
     }
 
     public static UserDTO toUserDTO(User user) {
+        if (user == null) {
+            return null;
+        }
         return new UserDTO(
                 user.getId(),
                 user.getName(),
@@ -36,9 +41,12 @@ public class EntityDtoConverter {
                 user.getPosition(),
                 user.getTelephone(),
                 user.getRole(),
-                user.getTeam().getName(),
-                (List<Onboarding>) user.getOnboarding(),
-                user.getReports()
+                user.getTeam() != null ? user.getTeam().getName() : null,
+                user.getOnboarding() != null
+                        ? user.getOnboarding().stream()
+                        .map(Onboarding::getId)
+                        .toList()
+                        : List.of()
         );
     }
 
@@ -51,19 +59,26 @@ public class EntityDtoConverter {
     }
 
     public static TeamDTO toTeamDTO(Team team) {
-        List<PlatformDTO> platforms = team.getPlatforms().stream()
-                .map(EntityDtoConverter::toPlatformDTO)
-                .toList();
+        List<Long> platformIds = team.getPlatforms() != null
+                ? team.getPlatforms().stream()
+                .map(Platform::getId)
+                .filter(Objects::nonNull)
+                .toList()
+                : List.of();
 
-        List<UserDTO> users = team.getUsers().stream()
+
+        List<UserDTO> users = team.getUsers() != null
+                ? team.getUsers().stream()
                 .map(EntityDtoConverter::toUserDTO)
-                .toList();
+                .filter(Objects::nonNull)
+                .toList()
+                : List.of();
 
         return new TeamDTO(
                 team.getId(),
                 team.getName(),
                 team.getDepartment(),
-                platforms,
+                platformIds,
                 users
         );
     }
@@ -74,10 +89,12 @@ public class EntityDtoConverter {
                 step.getId(),
                 step.getName(),
                 step.getDescription(),
-                toOnboardingDTO(step.getOnboarding()),
-                step.getTasks().stream()
+                step.getOrder(),
+                step.getTasks() != null
+                        ? step.getTasks().stream()
                         .map(EntityDtoConverter::toTaskDTO)
                         .toList()
+                        : List.of()
         );
     }
 
@@ -85,6 +102,7 @@ public class EntityDtoConverter {
         Step step = new Step();
         step.setName(dto.name());
         step.setDescription(dto.description());
+        step.setOrder(dto.stepOrder());
         return step;
     }
 
@@ -93,7 +111,6 @@ public class EntityDtoConverter {
         return new TaskDTO(
                 task.getId(),
                 task.getName(),
-                toStepDTO(task.getStep()),
                 task.isStandard()
         );
     }
@@ -105,6 +122,7 @@ public class EntityDtoConverter {
         return task;
     }
 
+    //Platform
     public static PlatformDTO toPlatformDTO(Platform platform) {
         return new PlatformDTO(
                 platform.getId(),
@@ -122,6 +140,7 @@ public class EntityDtoConverter {
         return platform;
     }
 
+    //Onboarding
     public static OnboardingDTO toOnboardingDTO(Onboarding onboarding) {
         return new OnboardingDTO(
                 onboarding.getId(),
@@ -131,12 +150,17 @@ public class EntityDtoConverter {
                 toUserDTO(onboarding.getManager()),
                 toUserDTO(onboarding.getBuddy()),
                 toUserDTO(onboarding.getCollaborator()),
-                onboarding.getSteps().stream()
+                onboarding.getSteps() != null
+                        ? onboarding.getSteps().stream()
                         .map(EntityDtoConverter::toStepDTO)
-                        .toList(),
-                onboarding.getReports().stream()
+                        .toList()
+                        : List.of(),
+                onboarding.getReports() != null
+                        ? onboarding.getReports().stream()
                         .map(EntityDtoConverter::toReportDTO)
                         .toList()
+                        : List.of(),
+                onboarding.getCurrentStep() != null ? toStepDTO(onboarding.getCurrentStep()) : null
         );
     }
 
@@ -148,6 +172,7 @@ public class EntityDtoConverter {
         return onboarding;
     }
 
+    //Report
     public static ReportDTO toReportDTO(Report report) {
         return new ReportDTO(
                 report.getId(),
@@ -168,6 +193,7 @@ public class EntityDtoConverter {
         return report;
     }
 
+    //Message
     public static MessageDTO toMessageDTO(Message message) {
         return new MessageDTO(
                 message.getId(),
@@ -183,16 +209,25 @@ public class EntityDtoConverter {
         return message;
     }
 
+    //Chat
     public static ChatDTO toChatDTO(Chat chat) {
+        List<UserDTO> participants = chat.getParticipants() != null
+                ? chat.getParticipants().stream()
+                .map(EntityDtoConverter::toUserDTO)
+                .filter(Objects::nonNull)
+                .toList()
+                : List.of();
+
+        List<MessageDTO> messages = chat.getMessages() != null
+                ? chat.getMessages().stream()
+                .map(EntityDtoConverter::toMessageDTO)
+                .toList()
+                : List.of();
+
         return new ChatDTO(
                 chat.getId(),
-                chat.getParticipants().stream()
-                                .map(EntityDtoConverter::toUserDTO)
-                                .toList(),
-                chat.getMessages().stream()
-                        .map(EntityDtoConverter::toMessageDTO)
-                        .toList()
+                participants,
+                messages
         );
     }
-
 }

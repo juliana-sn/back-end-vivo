@@ -1,15 +1,21 @@
 package br.purpletech.vivo.services.imp;
 
+import br.purpletech.vivo.dtos.step.StepDTO;
+import br.purpletech.vivo.dtos.step.StepToCreateDTO;
+import br.purpletech.vivo.dtos.task.TaskToCreateDTO;
 import br.purpletech.vivo.models.Step;
 import br.purpletech.vivo.models.Task;
 import br.purpletech.vivo.repositories.StepRepository;
 import br.purpletech.vivo.repositories.TaskRepository;
 import br.purpletech.vivo.services.StepService;
+import br.purpletech.vivo.utils.EntityDtoConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class StepServiceImp implements StepService {
@@ -22,30 +28,39 @@ public class StepServiceImp implements StepService {
         this.stepRepository = stepRepository;
     }
 
+    @Transactional
     @Override
-    public Step createStep(Step stepToCreate) {
-        return stepRepository.save(stepToCreate);
+    public StepDTO createStep(StepToCreateDTO stepToCreate) {
+        Step step = EntityDtoConverter.toStep(stepToCreate);
+        Step stepSaved = stepRepository.save(step);
+        return EntityDtoConverter.toStepDTO(stepSaved);
     }
 
     @Override
-    public List<Step> getAllSteps() {
-        return stepRepository.findAll();
+    public List<StepDTO> getAllSteps() {
+        return stepRepository.findAll().stream()
+                .map(EntityDtoConverter::toStepDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Optional<Step> getById(Long id) {
-        return stepRepository.findById(id);
+    public Optional<StepDTO> getById(Long id) {
+        return stepRepository.findById(id).map(EntityDtoConverter::toStepDTO);
     }
 
+    @Transactional
     @Override
-    public Optional<Step> updateStep(Long id, Step updatedStep) {
+    public Optional<StepDTO> updateStep(Long id, StepToCreateDTO updatedStep) {
         return stepRepository.findById(id).map(step -> {
-            step.setName(updatedStep.getName());
-            step.setDescription(updatedStep.getDescription());
-            return stepRepository.save(step);
+            step.setName(updatedStep.name());
+            step.setDescription(updatedStep.description());
+            step.setOrder(updatedStep.stepOrder());
+            Step stepSaved = stepRepository.save(step);
+            return EntityDtoConverter.toStepDTO(stepSaved);
         });
     }
 
+    @Transactional
     @Override
     public boolean deleteStep(Long id) {
         return stepRepository.findById(id).map(step -> {
@@ -54,26 +69,29 @@ public class StepServiceImp implements StepService {
         }).orElse(false);
     }
 
+    @Transactional
     @Override
-    public Step addTask(Long id, Task task) {
+    public StepDTO addTask(Long id, TaskToCreateDTO taskToCreate) {
         Optional<Step> stepOptional = Optional.ofNullable(stepRepository.findById(id).orElseThrow(() -> new RuntimeException("Etapa não encontrada")));
         if(stepOptional.isPresent()) {
             Step step = stepOptional.get();
-
+            Task task = EntityDtoConverter.toTask(taskToCreate);
+            task.setStep(step);
             Task savedTask = taskRepository.save(task);
 
-            savedTask.setStep(step);
             step.getTasks().add(savedTask);
-            return stepRepository.save(step);
+            Step stepSaved = stepRepository.save(step);
+            return EntityDtoConverter.toStepDTO(stepSaved);
         }else{
             return null;
         }
     }
 
+    @Transactional
     @Override
-    public boolean deleteTask(Long id_step, Long id_task) {
-        Optional<Step> stepOptional = Optional.ofNullable(stepRepository.findById(id_step).orElseThrow(() -> new RuntimeException("Etapa não encontrada")));
-        Optional<Task> taskOptional = Optional.ofNullable(taskRepository.findById(id_task).orElseThrow(() -> new RuntimeException("Tarefa não encontrada")));
+    public boolean deleteTask(Long idStep, Long idTask) {
+        Optional<Step> stepOptional = Optional.ofNullable(stepRepository.findById(idStep).orElseThrow(() -> new RuntimeException("Etapa não encontrada")));
+        Optional<Task> taskOptional = Optional.ofNullable(taskRepository.findById(idTask).orElseThrow(() -> new RuntimeException("Tarefa não encontrada")));
         if(stepOptional.isPresent()) {
             Step step = stepOptional.get();
             Task task = taskOptional.get();

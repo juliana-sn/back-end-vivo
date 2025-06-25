@@ -46,6 +46,11 @@ public class Onboarding {
     @OrderBy("createdAt DESC")
     private List<Report> reports  = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "current_step_id")
+    private Step currentStep;
+
+
     public Long getId() {
         return id;
     }
@@ -112,5 +117,13 @@ public class Onboarding {
 
     public void setReports(List<Report> reports) {
         this.reports = reports;
+    }
+
+    public Step getCurrentStep() {
+        return currentStep;
+    }
+
+    public void setCurrentStep(Step currentStep) {
+        this.currentStep = currentStep;
     }
 }
