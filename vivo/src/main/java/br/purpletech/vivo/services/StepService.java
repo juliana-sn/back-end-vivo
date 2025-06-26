@@ -11,7 +11,6 @@ import java.util.Optional;
 
 public interface StepService {
     StepDTO createStep(StepToCreateDTO stepToCreate);
-    List<StepDTO> getAllSteps ();
     StepDTO getById(Long id);
     StepDTO updateStep(Long id, StepToCreateDTO updatedStep);
     void deleteStep(Long id);

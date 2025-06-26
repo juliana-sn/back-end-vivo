@@ -23,7 +23,7 @@ public class TaskServiceImp implements TaskService {
 
     @Override
     public List<TaskDTO> getAllTasks() {
-        return taskRepository.findByStardardTrue().stream()
+        return taskRepository.findByStandardTrue().stream()
                 .map(EntityDtoConverter::toTaskDTO)
                 .collect(Collectors.toList());
     }
