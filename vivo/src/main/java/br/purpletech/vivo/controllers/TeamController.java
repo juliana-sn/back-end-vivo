@@ -31,7 +31,7 @@ public class TeamController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<TeamDTO>> getTeamById(@PathVariable Long id){
+    public ResponseEntity<TeamDTO> getTeamById(@PathVariable Long id){
         var team = teamServiceImp.getById(id);
         return ResponseEntity.ok(team);
     }
@@ -43,7 +43,7 @@ public class TeamController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Optional<TeamDTO>> updateTeam(@PathVariable Long id, @RequestBody @Valid TeamToCreateDTO updateTeam){
+    public ResponseEntity<TeamDTO> updateTeam(@PathVariable Long id, @RequestBody @Valid TeamToCreateDTO updateTeam){
         var updatedTeam = teamServiceImp.updateNameTeam(id, updateTeam);
         return ResponseEntity.ok(updatedTeam);
     }
@@ -52,12 +52,6 @@ public class TeamController {
     public ResponseEntity<Void> deleteTeam(@PathVariable Long id){
         teamServiceImp.deleteTeam(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/{id}/users")
-    public ResponseEntity<TeamDTO> addUser(@PathVariable Long id, @RequestBody @Valid UserToCreateDTO userToCreate){
-        var team = teamServiceImp.addUser(id, userToCreate);
-        return ResponseEntity.ok(team);
     }
 
     @DeleteMapping("/{id}/users/{idUser}")

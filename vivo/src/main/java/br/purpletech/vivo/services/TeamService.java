@@ -12,12 +12,10 @@ import java.util.Optional;
 
 public interface TeamService {
     List<TeamDTO> getAllTeams();
-    Optional<TeamDTO> getById(Long id);
+    TeamDTO getById(Long id);
     TeamDTO createTeam(TeamToCreateDTO team);
-    Optional<TeamDTO> updateNameTeam(Long id, TeamToCreateDTO updatedTeam);
-    boolean deleteTeam(Long id);
-
-    TeamDTO addUser(Long id, UserToCreateDTO user);
+    TeamDTO updateNameTeam(Long id, TeamToCreateDTO updatedTeam);
+    void deleteTeam(Long id);
     boolean deleteUser(Long idTeam, Long idUser);
 
     TeamDTO addPlatform(Long id, Long idPlatform);

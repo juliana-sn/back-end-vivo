@@ -29,13 +29,13 @@ public class PlatformController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<PlatformDTO>> getPlatformById(@PathVariable Long id){
+    public ResponseEntity<PlatformDTO> getPlatformById(@PathVariable Long id){
         var platform = platformServiceImp.getById(id);
         return ResponseEntity.ok(platform);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Optional<PlatformDTO>> updatePlatform(@PathVariable Long id, @RequestBody @Valid PlatformToCreateDTO updatedPlatform){
+    public ResponseEntity<PlatformDTO> updatePlatform(@PathVariable Long id, @RequestBody @Valid PlatformToCreateDTO updatedPlatform){
         var platform = platformServiceImp.updatePlatform(id, updatedPlatform);
         return ResponseEntity.ok(platform);
     }

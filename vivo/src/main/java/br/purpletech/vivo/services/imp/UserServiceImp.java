@@ -10,7 +10,9 @@ import br.purpletech.vivo.repositories.TeamRepository;
 import br.purpletech.vivo.repositories.UserRepository;
 import br.purpletech.vivo.services.UserService;
 import br.purpletech.vivo.utils.EntityDtoConverter;
-import jakarta.persistence.EntityNotFoundException;
+import br.purpletech.vivo.exceptions.custom.user.*;
+import br.purpletech.vivo.exceptions.custom.team.TeamNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,64 +42,56 @@ public class UserServiceImp implements UserService {
                 .collect(Collectors.toList());
     }
 
-    public Optional<UserDTO> getById(Long id) {
+    public UserDTO getById(Long id) {
         return userRepository.findById(id)
-                .map(EntityDtoConverter::toUserDTO);
-    }
-
-    @Transactional
-    public Optional<UserDTO> updateUser(Long id, UserToCreateDTO updatedUser) {
-        return userRepository.findById(id).map(user -> {
-            user.setEmail(updatedUser.email());
-            user.setPosition(updatedUser.position());
-            user.setRole(updatedUser.role());
-            user.setTelephone(updatedUser.telephone());
-            user.setName(updatedUser.name());
-            user.setLastName(updatedUser.lastName());
-
-            User userUpdated = userRepository.save(user);
-            return EntityDtoConverter.toUserDTO(userUpdated);
-        });
-    }
-
-    @Transactional
-    public Optional<UserDTO> updateUserTeam(Long userId, Long newTeamId) {
-        return userRepository.findById(userId).map(user -> {
-            // Remove da equipe atual
-            Team currentTeam = user.getTeam();
-            if (currentTeam != null) {
-                currentTeam.getUsers().remove(user);
-                teamRepository.save(currentTeam);
-            }
-
-            Team newTeam = teamRepository.findById(newTeamId)
-                    .orElseThrow(() -> new EntityNotFoundException("Equipe não encontrada"));
-
-            user.setTeam(newTeam);
-            newTeam.getUsers().add(user);
-
-            teamRepository.save(newTeam);
-            User updatedUser = userRepository.save(user);
-
-            return EntityDtoConverter.toUserDTO(updatedUser);
-        });
-    }
-
-
-
-    @Transactional
-    public boolean deleteUser(Long id) {
-        return userRepository.findById(id).map(user -> {
-            userRepository.delete(user);
-            return true;
-        }).orElse(false);
-    }
-
-    public List<UserDTO> getUsersByRole(Role role) {
-        return userRepository.findByRole(role)
-                .stream()
                 .map(EntityDtoConverter::toUserDTO)
-                .collect(Collectors.toList());
+                .orElseThrow(UserNotFoundException::new);
+    }
+
+    @Transactional
+    public UserDTO updateUser(Long id, UserToCreateDTO updatedUser) {
+        User user = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+
+        user.setEmail(updatedUser.email());
+        user.setPosition(updatedUser.position());
+        user.setRole(updatedUser.role());
+        user.setTelephone(updatedUser.telephone());
+        user.setName(updatedUser.name());
+        user.setLastName(updatedUser.lastName());
+
+        User userUpdated = userRepository.save(user);
+        return EntityDtoConverter.toUserDTO(userUpdated);
+    }
+
+    @Transactional
+    public UserDTO updateUserTeam(Long userId, Long newTeamId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        Team newTeam = teamRepository.findById(newTeamId)
+                .orElseThrow(TeamNotFoundException::new);
+
+        Team currentTeam = user.getTeam();
+        if (currentTeam != null) {
+            currentTeam.getUsers().remove(user);
+            teamRepository.save(currentTeam);
+        }
+
+        user.setTeam(newTeam);
+        newTeam.getUsers().add(user);
+
+        teamRepository.save(newTeam);
+        User updatedUser = userRepository.save(user);
+
+        return EntityDtoConverter.toUserDTO(updatedUser);
+    }
+
+    @Transactional
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+        userRepository.delete(user);
     }
 
     @Transactional

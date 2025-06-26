@@ -14,11 +14,10 @@ import java.util.Optional;
 
 public interface UserService {
     List<UserDTO> getAllUsers();
-    Optional<UserDTO> getById(Long id);
-    Optional<UserDTO> updateUser(Long id, UserToCreateDTO updatedUser);
-    Optional<UserDTO> updateUserTeam(Long userId, Long newTeamId);
-    boolean deleteUser(Long id);
-    List<UserDTO> getUsersByRole(Role role);
+    UserDTO getById(Long id);
+    UserDTO updateUser(Long id, UserToCreateDTO updatedUser);
+    UserDTO updateUserTeam(Long userId, Long newTeamId);
+    void deleteUser(Long id);
 
     ChatDTO sendMessageToUser(Long senderId, Long receiverId, MessageToCreateDTO message);
     ChatDTO getChatManager(Long idUser);

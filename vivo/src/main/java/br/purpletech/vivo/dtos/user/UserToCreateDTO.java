@@ -28,5 +28,8 @@ public record UserToCreateDTO(
         String telephone,
 
         @NotNull(message = "Função (role) é obrigatória")
-        Role role
+        Role role,
+
+        @NotBlank(message = "O ID do Team é obrigatório")
+        Long teamId
 ) { }

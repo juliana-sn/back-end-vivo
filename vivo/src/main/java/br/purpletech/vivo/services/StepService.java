@@ -12,11 +12,11 @@ import java.util.Optional;
 public interface StepService {
     StepDTO createStep(StepToCreateDTO stepToCreate);
     List<StepDTO> getAllSteps ();
-    Optional<StepDTO> getById(Long id);
-    Optional<StepDTO> updateStep(Long id, StepToCreateDTO updatedStep);
-    boolean deleteStep(Long id);
+    StepDTO getById(Long id);
+    StepDTO updateStep(Long id, StepToCreateDTO updatedStep);
+    void deleteStep(Long id);
 
     StepDTO addTask (Long id, TaskToCreateDTO task);
-    boolean deleteTask(Long idStep, Long idTask);
+    void deleteTask(Long idStep, Long idTask);
 
 }

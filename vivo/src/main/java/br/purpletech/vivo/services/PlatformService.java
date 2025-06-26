@@ -10,11 +10,11 @@ import java.util.Optional;
 public interface PlatformService {
     List<PlatformDTO> getAllPlatforms();
 
-    Optional<PlatformDTO> getById(Long id);
+    PlatformDTO getById(Long id);
 
     PlatformDTO createPlatform(PlatformToCreateDTO platformToCreate);
 
-    boolean deletePlatform(Long id);
+    void deletePlatform(Long id);
 
-    Optional<PlatformDTO> updatePlatform (Long id, PlatformToCreateDTO updatedPlatform);
+    PlatformDTO updatePlatform (Long id, PlatformToCreateDTO updatedPlatform);
 }

@@ -7,6 +7,7 @@ import br.purpletech.vivo.models.Platform;
 import br.purpletech.vivo.repositories.PlatformRepository;
 import br.purpletech.vivo.services.PlatformService;
 import br.purpletech.vivo.utils.EntityDtoConverter;
+import br.purpletech.vivo.exceptions.custom.platform.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,13 +32,20 @@ public class PlatformServiceImp implements PlatformService {
     }
 
     @Override
-    public Optional<PlatformDTO> getById(Long id) {
-        return platformRepository.findById(id).map(EntityDtoConverter::toPlatformDTO);
+    public PlatformDTO getById(Long id) {
+        Platform platform = platformRepository.findById(id)
+                .orElseThrow(PlatformNotFoundException::new);
+
+        return EntityDtoConverter.toPlatformDTO(platform);
     }
 
     @Transactional
     @Override
     public PlatformDTO createPlatform(PlatformToCreateDTO platformToCreate) {
+        if (platformRepository.existsByName(platformToCreate.name())) {
+            throw new PlatformNameAlreadyUsedException();
+        }
+
         Platform platform = EntityDtoConverter.toPlatform(platformToCreate);
         Platform saved = platformRepository.save(platform);
         return EntityDtoConverter.toPlatformDTO(saved);
@@ -45,22 +53,33 @@ public class PlatformServiceImp implements PlatformService {
 
     @Transactional
     @Override
-    public boolean deletePlatform(Long id) {
-        return platformRepository.findById(id).map(platform -> {
-            platformRepository.delete(platform);
-            return true;
-        }).orElse(false);
+    public void deletePlatform(Long id) {
+        Platform platform = platformRepository.findById(id)
+                .orElseThrow(PlatformNotFoundException::new);
+
+        platformRepository.delete(platform);
     }
+
 
     @Transactional
     @Override
-    public Optional<PlatformDTO> updatePlatform(Long id, PlatformToCreateDTO updatedPlatform) {
-        return platformRepository.findById(id).map(platform -> {
-            platform.setName(updatedPlatform.name());
-            platform.setType_access(updatedPlatform.type_access());
-            platform.setUrl(updatedPlatform.url());
-            Platform platformSaved = platformRepository.save(platform);
-            return EntityDtoConverter.toPlatformDTO(platformSaved);
-        });
+    public PlatformDTO updatePlatform(Long id, PlatformToCreateDTO updatedPlatform) {
+        Platform platform = platformRepository.findById(id)
+                .orElseThrow(PlatformNotFoundException::new);
+
+        boolean nameUsed = platformRepository.existsByName(updatedPlatform.name());
+        boolean sameName = platform.getName().equalsIgnoreCase(updatedPlatform.name());
+
+        if (nameUsed && !sameName) {
+            throw new PlatformNameAlreadyUsedException();
+        }
+
+        platform.setName(updatedPlatform.name());
+        platform.setType_access(updatedPlatform.type_access());
+        platform.setUrl(updatedPlatform.url());
+
+        Platform platformSaved = platformRepository.save(platform);
+        return EntityDtoConverter.toPlatformDTO(platformSaved);
     }
+
 }

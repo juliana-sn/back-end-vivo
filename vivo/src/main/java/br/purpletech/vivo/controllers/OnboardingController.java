@@ -13,6 +13,7 @@ import br.purpletech.vivo.services.imp.OnboardingServiceImp;
 import jakarta.validation.Valid;
 import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class OnboardingController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<OnboardingDTO>> getOnboardingById(@PathVariable Long id){
+    public ResponseEntity<OnboardingDTO> getOnboardingById(@PathVariable Long id){
         var onboarding = onboardingServiceImp.getById(id);
         return ResponseEntity.ok(onboarding);
     }
@@ -64,7 +65,7 @@ public class OnboardingController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Optional<OnboardingDTO>> updateOnboarding (@PathVariable Long id, @RequestBody @Valid OnboardingToCreateDTO updatedOnboarding){
+    public ResponseEntity<OnboardingDTO> updateOnboarding (@PathVariable Long id, @RequestBody @Valid OnboardingToCreateDTO updatedOnboarding){
         var onboarding = onboardingServiceImp.updateOnboarding(id, updatedOnboarding);
         return ResponseEntity.ok(onboarding);
     }

@@ -6,12 +6,11 @@ import br.purpletech.vivo.dtos.message.MessageToCreateDTO;
 import br.purpletech.vivo.dtos.user.UserDTO;
 import br.purpletech.vivo.dtos.user.UserToCreateDTO;
 import br.purpletech.vivo.models.*;
-import br.purpletech.vivo.services.imp.TeamServiceImp;
 import br.purpletech.vivo.services.imp.UserServiceImp;
 import jakarta.validation.Valid;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,7 +32,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<UserDTO>> getUserById(@PathVariable Long id){
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id){
         var user = userServiceImp.getById(id);
         return ResponseEntity.ok(user);
     }
@@ -45,31 +44,25 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Optional<UserDTO>> updateUser(@PathVariable Long id, @Valid UserToCreateDTO updateUser){
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @Valid UserToCreateDTO updateUser){
         var updatedUser = userServiceImp.updateUser(id, updateUser);
         return ResponseEntity.ok(updatedUser);
     }
 
     @PatchMapping("/{id}/team")
     public ResponseEntity<UserDTO> updateUserTeam(@PathVariable Long id, @RequestParam Long teamId) {
-        return userServiceImp.updateUserTeam(id, teamId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/role")
-    public ResponseEntity<List<UserDTO>> getUsersByRole(@RequestParam Role role){
-        var users = userServiceImp.getUsersByRole(role);
-        return ResponseEntity.ok(users);
+        UserDTO updatedUser = userServiceImp.updateUserTeam(id, teamId);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @PostMapping("/{idSender}/chat/{idReceiver}/message")
     public ResponseEntity<ChatDTO> sendMessageToUser(@PathVariable Long idSender,
                                                      @PathVariable Long idReceiver,
                                                      @RequestBody @Valid MessageToCreateDTO message) {
-        var chat = userServiceImp.sendMessageToUser(idSender, idReceiver, message);
-        return ResponseEntity.ok(chat);
+        ChatDTO chat = userServiceImp.sendMessageToUser(idSender, idReceiver, message);
+        return ResponseEntity.status(201).body(chat);
     }
+
 
     @GetMapping("/{id}/chat/manager")
     public ResponseEntity<ChatDTO> getChatManager(@PathVariable Long id){

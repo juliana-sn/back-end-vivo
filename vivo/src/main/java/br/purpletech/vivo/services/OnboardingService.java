@@ -16,22 +16,23 @@ import java.util.Optional;
 public interface OnboardingService {
     OnboardingDTO createOnboarding(OnboardingToCreateDTO onboardingToCreate);
     List<OnboardingDTO> getAllOnboarding();
-    Optional<OnboardingDTO> getById(Long id);
-    boolean deleteOnboarding(Long id);
-    Optional<OnboardingDTO> updateOnboarding(Long id, OnboardingToCreateDTO updatedOnboarding);
+    OnboardingDTO getById(Long id);
+    void deleteOnboarding(Long id);
+    OnboardingDTO updateOnboarding(Long id, OnboardingToCreateDTO updatedOnboarding);
     Optional<List<OnboardingDTO>> findByManagerId(Long userId);
     Optional<List<OnboardingDTO>> findByBuddyId(Long userId);
 
     OnboardingDTO addUser(Long id, Long idUser);
-    boolean deleteUser(Long id, Long idUser);
+    void deleteUser(Long id, Long idUser);
 
     OnboardingDTO addStep(Long id, StepToCreateDTO step);
-    boolean deleteStep(Long id, Long idStep);
+    void deleteStep(Long id, Long idStep);
 
     OnboardingDTO addReport(Long id, ReportToCreateDTO report);
     Optional<List<ReportDTO>> getReports (Long id);
 
     OnboardingDTO findManagerByCollaboratorId(Long collaboratorId);
     OnboardingDTO findBuddyByCollaboratorId(Long collaboratorId);
+    OnboardingDTO createChats(Long onboardingId);
 
 }

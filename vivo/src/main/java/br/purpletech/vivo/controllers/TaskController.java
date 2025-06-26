@@ -29,7 +29,7 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<TaskDTO>> getTaskById(@PathVariable Long id){
+    public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id){
         var task = taskServiceImp.getById(id);
         return ResponseEntity.ok(task);
     }
@@ -41,7 +41,7 @@ public class TaskController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Optional<TaskDTO>> updateNameTask(@PathVariable Long id, @RequestBody @Valid TaskToCreateDTO updatedTask){
+    public ResponseEntity<TaskDTO> updateNameTask(@PathVariable Long id, @RequestBody @Valid TaskToCreateDTO updatedTask){
         var task = taskServiceImp.updateNameTask(id, updatedTask);
         return ResponseEntity.ok(task);
     }

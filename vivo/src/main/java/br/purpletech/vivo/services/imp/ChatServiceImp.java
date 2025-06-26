@@ -9,7 +9,7 @@ import br.purpletech.vivo.repositories.MessageRepository;
 import br.purpletech.vivo.repositories.UserRepository;
 import br.purpletech.vivo.services.ChatService;
 import br.purpletech.vivo.utils.EntityDtoConverter;
-import jakarta.persistence.EntityNotFoundException;
+import br.purpletech.vivo.exceptions.custom.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,9 +43,7 @@ public class ChatServiceImp implements ChatService {
             throw new IllegalArgumentException("IDs não podem ser nulos");
         }
 
-        List<Chat> allChats = chatRepository.findAll();
-
-        return allChats.stream()
+        return chatRepository.findAll().stream()
                 .filter(chat -> {
                     Set<Long> participantIds = chat.getParticipants().stream()
                             .map(User::getId)
@@ -57,9 +55,9 @@ public class ChatServiceImp implements ChatService {
                 .findFirst()
                 .orElseGet(() -> {
                     User user1 = userRepository.findById(id1)
-                            .orElseThrow(() -> new EntityNotFoundException("Usuário com ID " + id1 + " não encontrado"));
+                            .orElseThrow(UserNotFoundException::new);
                     User user2 = userRepository.findById(id2)
-                            .orElseThrow(() -> new EntityNotFoundException("Usuário com ID " + id2 + " não encontrado"));
+                            .orElseThrow(UserNotFoundException::new);
 
                     Chat chat = new Chat();
                     chat.getParticipants().add(user1);
@@ -68,19 +66,21 @@ public class ChatServiceImp implements ChatService {
                 });
     }
 
-
     @Transactional
     public ChatDTO sendMessage(Long senderId, Long receiverId, Message message) {
         Chat chat = findOrCreateChat(senderId, receiverId);
-        User sender = userRepository.findById(senderId).orElseThrow();
+
+        User sender = userRepository.findById(senderId)
+                .orElseThrow(UserNotFoundException::new);
 
         message.setSender(sender);
         message.setChat(chat);
-
         messageRepository.save(message);
+
         chat.getMessages().add(message);
-        Chat chatSaved = chatRepository.save(chat);
-        return EntityDtoConverter.toChatDTO(chatSaved);
+        Chat savedChat = chatRepository.save(chat);
+
+        return EntityDtoConverter.toChatDTO(savedChat);
     }
 
     public List<ChatDTO> getAllChatsByUserId(Long userId){

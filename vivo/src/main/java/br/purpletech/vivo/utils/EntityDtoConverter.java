@@ -17,17 +17,16 @@ import java.util.Objects;
 
 public class EntityDtoConverter {
     //User
-    public static User toUser(UserToCreateDTO dto) {
+    public static User toUser(UserToCreateDTO dto, Team team) {
         User user = new User();
         user.setName(dto.name());
-        user.setLastName(dto.lastName());
         user.setEmail(dto.email());
         user.setPassword(dto.password());
-        user.setPosition(dto.position());
-        user.setTelephone(dto.telephone());
         user.setRole(dto.role());
+        user.setTeam(team);
         return user;
     }
+
 
     public static UserDTO toUserDTO(User user) {
         if (user == null) {

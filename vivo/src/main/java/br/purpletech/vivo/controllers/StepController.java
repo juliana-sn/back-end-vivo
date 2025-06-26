@@ -29,20 +29,14 @@ public class StepController {
         return ResponseEntity.ok(step);
     }
 
-    @GetMapping
-    public ResponseEntity<List<StepDTO>> getAllSteps(){
-        var steps = stepServiceImp.getAllSteps();
-        return ResponseEntity.ok(steps);
-    }
-
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<StepDTO>> getStepById(@PathVariable Long id){
+    public ResponseEntity<StepDTO> getStepById(@PathVariable Long id){
         var step = stepServiceImp.getById(id);
         return ResponseEntity.ok(step);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Optional<StepDTO>> updateStep(@PathVariable Long id, @RequestBody @Valid StepToCreateDTO updatedStep){
+    public ResponseEntity<StepDTO> updateStep(@PathVariable Long id, @RequestBody @Valid StepToCreateDTO updatedStep){
         var step = stepServiceImp.updateStep(id, updatedStep);
         return ResponseEntity.ok(step);
     }

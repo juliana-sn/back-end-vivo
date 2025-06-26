@@ -5,6 +5,7 @@ import br.purpletech.vivo.dtos.onboarding.OnboardingToCreateDTO;
 import br.purpletech.vivo.dtos.report.ReportDTO;
 import br.purpletech.vivo.dtos.report.ReportToCreateDTO;
 import br.purpletech.vivo.dtos.step.StepToCreateDTO;
+import br.purpletech.vivo.exceptions.custom.step.OrderStepAlreadyUsedException;
 import br.purpletech.vivo.models.*;
 import br.purpletech.vivo.repositories.OnboardingRepository;
 import br.purpletech.vivo.repositories.ReportRepository;
@@ -12,7 +13,9 @@ import br.purpletech.vivo.repositories.StepRepository;
 import br.purpletech.vivo.repositories.UserRepository;
 import br.purpletech.vivo.services.OnboardingService;
 import br.purpletech.vivo.utils.EntityDtoConverter;
-import jakarta.persistence.EntityNotFoundException;
+import br.purpletech.vivo.exceptions.custom.onboarding.*;
+import br.purpletech.vivo.exceptions.custom.user.UserNotFoundException;
+import br.purpletech.vivo.exceptions.custom.step.StepNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,46 +61,52 @@ public class OnboardingServiceImp implements OnboardingService {
     }
 
     @Override
-    public Optional<OnboardingDTO> getById(Long id) {
-        return onboardingRepository.findById(id).map(EntityDtoConverter::toOnboardingDTO);
+    public OnboardingDTO getById(Long id) {
+        Onboarding onboarding = onboardingRepository.findById(id)
+                .orElseThrow(OnboardingNotFoundException::new);
+        return EntityDtoConverter.toOnboardingDTO(onboarding);
     }
 
     @Transactional
     @Override
-    public boolean deleteOnboarding(Long id) {
-        return onboardingRepository.findById(id).map(onboarding -> {
-            if (onboarding.getManager() != null) {
-                onboarding.getManager().getOnboarding().remove(onboarding);
-                onboarding.setManager(null);
-            }
+    public void deleteOnboarding(Long id) {
+        Onboarding onboarding = onboardingRepository.findById(id)
+                .orElseThrow(OnboardingNotFoundException::new);
 
-            if (onboarding.getBuddy() != null) {
-                onboarding.getBuddy().getOnboarding().remove(onboarding);
-                onboarding.setBuddy(null);
-            }
+        if (onboarding.getManager() != null) {
+            onboarding.getManager().getOnboarding().remove(onboarding);
+            onboarding.setManager(null);
+        }
 
-            if (onboarding.getCollaborator() != null) {
-                onboarding.getCollaborator().getOnboarding().remove(onboarding);
-                onboarding.setCollaborator(null);
-            }
+        if (onboarding.getBuddy() != null) {
+            onboarding.getBuddy().getOnboarding().remove(onboarding);
+            onboarding.setBuddy(null);
+        }
 
-            onboardingRepository.save(onboarding);
-            onboardingRepository.delete(onboarding);
-            return true;
-        }).orElse(false);
+        if (onboarding.getCollaborator() != null) {
+            onboarding.getCollaborator().getOnboarding().remove(onboarding);
+            onboarding.setCollaborator(null);
+        }
+
+        onboardingRepository.save(onboarding);
+        onboardingRepository.delete(onboarding);
     }
+
 
     @Transactional
     @Override
-    public Optional<OnboardingDTO> updateOnboarding(Long id, OnboardingToCreateDTO updatedOnboarding) {
-        return onboardingRepository.findById(id).map(onboarding ->{
-            onboarding.setDt_begin(updatedOnboarding.dt_begin());
-            onboarding.setDt_end(updatedOnboarding.dt_end());
-            onboarding.setActive(updatedOnboarding.active());
-            Onboarding onboardingSaved = onboardingRepository.save(onboarding);
-            return EntityDtoConverter.toOnboardingDTO(onboardingSaved);
-        });
+    public OnboardingDTO updateOnboarding(Long id, OnboardingToCreateDTO updatedOnboarding) {
+        Onboarding onboarding = onboardingRepository.findById(id)
+                .orElseThrow(OnboardingNotFoundException::new);
+
+        onboarding.setDt_begin(updatedOnboarding.dt_begin());
+        onboarding.setDt_end(updatedOnboarding.dt_end());
+        onboarding.setActive(updatedOnboarding.active());
+
+        Onboarding saved = onboardingRepository.save(onboarding);
+        return EntityDtoConverter.toOnboardingDTO(saved);
     }
+
 
     @Override
     public Optional<List<OnboardingDTO>> findByManagerId(Long userId) {
@@ -120,62 +129,49 @@ public class OnboardingServiceImp implements OnboardingService {
     @Transactional
     @Override
     public OnboardingDTO addUser(Long id, Long idUser) {
-        Optional<Onboarding> onboardingOptional = Optional.ofNullable(onboardingRepository.findById(id).orElseThrow(() -> new RuntimeException("Onboarding não encontrado")));
-        Optional<User> userOptional = Optional.ofNullable(userRepository.findById(idUser).orElseThrow(() -> new RuntimeException("Usuário não encontrado")));
+        Onboarding onboarding = onboardingRepository.findById(id)
+                .orElseThrow(OnboardingNotFoundException::new);
 
-        if(onboardingOptional.isPresent() && userOptional.isPresent()) {
-            Onboarding onboarding = onboardingOptional.get();
-            User user = userOptional.get();
+        User user = userRepository.findById(idUser)
+                .orElseThrow(UserNotFoundException::new);
 
-            user.getOnboarding().add(onboarding);
-            if(user.getRole() == Role.MANAGER){
-                onboarding.setManager(user);
-            }else if (user.getRole() == Role.BUDDY){
-                onboarding.setBuddy(user);
-            }else{
-                onboarding.setCollaborator(user);
-            }
+        user.getOnboarding().add(onboarding);
 
-            Onboarding onboardingSaved = onboardingRepository.save(onboarding);
-            return EntityDtoConverter.toOnboardingDTO(onboardingSaved);
-        }else{
-            return null;
+        switch (user.getRole()) {
+            case MANAGER -> onboarding.setManager(user);
+            case BUDDY -> onboarding.setBuddy(user);
+            default -> onboarding.setCollaborator(user);
         }
+
+        Onboarding saved = onboardingRepository.save(onboarding);
+        return EntityDtoConverter.toOnboardingDTO(saved);
     }
 
     @Transactional
     @Override
-    public boolean deleteUser(Long id, Long id_user) {
-        Optional<Onboarding> onboardingOptional = Optional.ofNullable(onboardingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Onboarding não encontrado")));
+    public void deleteUser(Long id, Long userId) {
+        Onboarding onboarding = onboardingRepository.findById(id)
+                .orElseThrow(OnboardingNotFoundException::new);
 
-        Optional<User> userOptional = Optional.ofNullable(userRepository.findById(id_user).orElseThrow(()-> new EntityNotFoundException("Usuário não encontrado")));
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
 
-        if (onboardingOptional.isPresent() && userOptional.isPresent()){
-            Onboarding onboarding = onboardingOptional.get();
-            User user = userOptional.get();
-
-            if(user.getRole() == Role.MANAGER){
-                onboarding.setManager(null);
-                user.getOnboarding().remove(onboarding);
-            }else if (user.getRole() == Role.BUDDY){
-                onboarding.setBuddy(null);
-                user.getOnboarding().remove(onboarding);
-            }else{
-                onboarding.setCollaborator(null);
-                user.getOnboarding().remove(onboarding);
-            }
-
-            onboardingRepository.save(onboarding);
-            userRepository.save(user);
-            return true;
-        }else{
-            return false;
+        switch (user.getRole()) {
+            case MANAGER -> onboarding.setManager(null);
+            case BUDDY -> onboarding.setBuddy(null);
+            default -> onboarding.setCollaborator(null);
         }
+
+        user.getOnboarding().remove(onboarding);
+        onboardingRepository.save(onboarding);
+        userRepository.save(user);
     }
 
-    public OnboardingDTO createChats(Long id) {
-        Onboarding onboarding = onboardingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Onboarding não encontrado para o ID " + id));
+
+    @Override
+    public OnboardingDTO createChats(Long onboardingId) {
+        Onboarding onboarding = onboardingRepository.findById(onboardingId)
+                .orElseThrow(OnboardingNotFoundException::new);
 
         User collaborator = onboarding.getCollaborator();
         User manager = onboarding.getManager();
@@ -195,62 +191,53 @@ public class OnboardingServiceImp implements OnboardingService {
     @Transactional
     @Override
     public OnboardingDTO addStep(Long id, StepToCreateDTO stepToCreate) {
-        Optional<Onboarding> onboardingOptional = Optional.ofNullable(onboardingRepository.findById(id).orElseThrow(() -> new RuntimeException("Onboarding não encontrado")));
-        if(onboardingOptional.isPresent()) {
-            Onboarding onboarding = onboardingOptional.get();
-            Step step = EntityDtoConverter.toStep(stepToCreate);
-            Step savedStep = stepRepository.save(step);
+        Onboarding onboarding = onboardingRepository.findById(id)
+                .orElseThrow(OnboardingNotFoundException::new);
 
-            savedStep.setOnboarding(onboarding);
-            stepRepository.save(savedStep);
-            onboarding.getSteps().add(step);
+        validateStepOrder(onboarding, stepToCreate.stepOrder());
 
-            Onboarding onboardingSaved = onboardingRepository.save(onboarding);
-            return EntityDtoConverter.toOnboardingDTO(onboardingSaved);
-        }else{
-            return null;
-        }
+        Step step = EntityDtoConverter.toStep(stepToCreate);
+        step.setOnboarding(onboarding);
+
+        Step savedStep = stepRepository.save(step);
+        onboarding.getSteps().add(savedStep);
+
+        Onboarding saved = onboardingRepository.save(onboarding);
+        return EntityDtoConverter.toOnboardingDTO(saved);
     }
+
 
     @Transactional
     @Override
-    public boolean deleteStep(Long id, Long id_step) {
-        Optional<Onboarding> onboardingOptional = Optional.ofNullable(onboardingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Onboarding não encontrado")));
+    public void deleteStep(Long id, Long idStep) {
+        Onboarding onboarding = onboardingRepository.findById(id)
+                .orElseThrow(OnboardingNotFoundException::new);
 
-        Optional<Step> stepOptional = Optional.ofNullable(stepRepository.findById(id_step).orElseThrow(()-> new EntityNotFoundException("Etapa não encontrada")));
+        Step step = stepRepository.findById(idStep)
+                .orElseThrow(StepNotFoundException::new);
 
-        if (onboardingOptional.isPresent() && stepOptional.isPresent()){
-            Onboarding onboarding = onboardingOptional.get();
-            Step step = stepOptional.get();
+        onboarding.getSteps().remove(step);
+        step.setOnboarding(null);
 
-            onboarding.getSteps().remove(step);
-            step.setOnboarding(null);
-
-            onboardingRepository.save(onboarding);
-            stepRepository.save(step);
-            return true;
-        }else{
-            return false;
-        }
+        onboardingRepository.save(onboarding);
+        stepRepository.save(step);
     }
 
     @Transactional
     @Override
     public OnboardingDTO addReport(Long id, ReportToCreateDTO reportToCreate) {
-        Optional<Onboarding> onboardingOptional = Optional.ofNullable(onboardingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Onboarding não encontrado")));
+        Onboarding onboarding = onboardingRepository.findById(id)
+                .orElseThrow(OnboardingNotFoundException::new);
 
-        if (onboardingOptional.isPresent()){
-            Onboarding onboarding = onboardingOptional.get();
-            Report report = EntityDtoConverter.toReport(reportToCreate);
-            report.setOnboarding(onboarding);
-            report.setCollaborator(onboarding.getCollaborator());
-            reportRepository.save(report);
-            onboarding.getReports().add(report);
-            Onboarding onboardingSaved = onboardingRepository.save(onboarding);
-            return EntityDtoConverter.toOnboardingDTO(onboardingSaved);
-        }else {
-            return null;
-        }
+        Report report = EntityDtoConverter.toReport(reportToCreate);
+        report.setOnboarding(onboarding);
+        report.setCollaborator(onboarding.getCollaborator());
+
+        reportRepository.save(report);
+        onboarding.getReports().add(report);
+
+        Onboarding saved = onboardingRepository.save(onboarding);
+        return EntityDtoConverter.toOnboardingDTO(saved);
     }
 
     @Override
@@ -264,44 +251,57 @@ public class OnboardingServiceImp implements OnboardingService {
 
     @Override
     public OnboardingDTO findManagerByCollaboratorId(Long collaboratorId) {
-        Onboarding onboarding = onboardingRepository.findManagerByCollaboratorId(collaboratorId);
+        Onboarding onboarding = Optional.ofNullable(onboardingRepository.findManagerByCollaboratorId(collaboratorId))
+                .orElseThrow(OnboardingNotFoundException::new);
+
         return EntityDtoConverter.toOnboardingDTO(onboarding);
     }
 
     @Override
     public OnboardingDTO findBuddyByCollaboratorId(Long collaboratorId) {
-        Onboarding onboarding = onboardingRepository.findBuddyByCollaboratorId(collaboratorId);
+        Onboarding onboarding = Optional.ofNullable(onboardingRepository.findBuddyByCollaboratorId(collaboratorId))
+                .orElseThrow(OnboardingNotFoundException::new);
+
         return EntityDtoConverter.toOnboardingDTO(onboarding);
     }
 
     @Transactional
     public OnboardingDTO getNextStep(Long onboardingId) {
         Onboarding onboarding = onboardingRepository.findById(onboardingId)
-                .orElseThrow(() -> new EntityNotFoundException("Onboarding não encontrado"));
+                .orElseThrow(OnboardingNotFoundException::new);
 
         List<Step> steps = onboarding.getSteps().stream()
-                .sorted(Comparator.comparing(Step::getOrder)) // assumindo que Step tem campo "order"
+                .sorted(Comparator.comparing(Step::getOrder))
                 .toList();
 
-        if (onboarding.getCurrentStep() == null && !steps.isEmpty()) {
-            onboarding.setCurrentStep(steps.get(0));
+        if (steps.isEmpty()) {
+            onboarding.setCurrentStep(null);
+        } else if (onboarding.getCurrentStep() == null) {
+            onboarding.setCurrentStep(steps.get(0)); // começa na primeira etapa
         } else {
-            for (int i = 0; i < steps.size(); i++) {
+            for (int i = 0; i < steps.size() - 1; i++) {
                 if (steps.get(i).getId().equals(onboarding.getCurrentStep().getId())) {
-                    if (i + 1 < steps.size()) {
-                        onboarding.setCurrentStep(steps.get(i + 1));
-                    } else {
-                        onboarding.setCurrentStep(null); // acabou as etapas
-                    }
+                    onboarding.setCurrentStep(steps.get(i + 1)); // próxima etapa
                     break;
                 }
+            }
+            // Se já estiver na última etapa, fica null
+            if (steps.get(steps.size() - 1).getId().equals(onboarding.getCurrentStep().getId())) {
+                onboarding.setCurrentStep(null);
             }
         }
 
         onboardingRepository.save(onboarding);
-
         return EntityDtoConverter.toOnboardingDTO(onboarding);
     }
 
 
+    private void validateStepOrder(Onboarding onboarding, Integer order) {
+        boolean exists = onboarding.getSteps().stream()
+                .anyMatch(step -> step.getOrder().equals(order));
+
+        if (exists) {
+            throw new OrderStepAlreadyUsedException();
+        }
+    }
 }
