@@ -10,5 +10,5 @@ public record StepToCreateDTO(
         String description,
 
         @NotBlank(message = "O número para ordenar a etapa é obrigatório")
-        Integer stepOrder
+        Integer orderStep
 ) {}

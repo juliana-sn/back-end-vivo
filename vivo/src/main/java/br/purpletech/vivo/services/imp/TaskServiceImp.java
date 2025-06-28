@@ -66,4 +66,16 @@ public class TaskServiceImp implements TaskService {
         return EntityDtoConverter.toTaskDTO(updated);
     }
 
+    @Transactional
+    @Override
+    public TaskDTO updateStatusTask(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(TaskNotFoundException::new);
+
+        task.setCompleted(true);
+        Task updated = taskRepository.save(task);
+
+        return EntityDtoConverter.toTaskDTO(updated);
+    }
+
 }

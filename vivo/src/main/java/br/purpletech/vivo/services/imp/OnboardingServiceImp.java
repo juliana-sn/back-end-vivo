@@ -194,13 +194,17 @@ public class OnboardingServiceImp implements OnboardingService {
         Onboarding onboarding = onboardingRepository.findById(id)
                 .orElseThrow(OnboardingNotFoundException::new);
 
-        validateStepOrder(onboarding, stepToCreate.stepOrder());
+        validateStepOrder(onboarding, stepToCreate.orderStep());
 
         Step step = EntityDtoConverter.toStep(stepToCreate);
         step.setOnboarding(onboarding);
 
         Step savedStep = stepRepository.save(step);
         onboarding.getSteps().add(savedStep);
+
+        if(onboarding.getCurrentStep() == null){
+            onboarding.setCurrentStep(step);
+        }
 
         Onboarding saved = onboardingRepository.save(onboarding);
         return EntityDtoConverter.toOnboardingDTO(saved);
@@ -271,7 +275,7 @@ public class OnboardingServiceImp implements OnboardingService {
                 .orElseThrow(OnboardingNotFoundException::new);
 
         List<Step> steps = onboarding.getSteps().stream()
-                .sorted(Comparator.comparing(Step::getOrder))
+                .sorted(Comparator.comparing(Step::getStepOrder))
                 .toList();
 
         if (steps.isEmpty()) {
@@ -298,7 +302,7 @@ public class OnboardingServiceImp implements OnboardingService {
 
     private void validateStepOrder(Onboarding onboarding, Integer order) {
         boolean exists = onboarding.getSteps().stream()
-                .anyMatch(step -> step.getOrder().equals(order));
+                .anyMatch(step -> step.getStepOrder().equals(order));
 
         if (exists) {
             throw new OrderStepAlreadyUsedException();

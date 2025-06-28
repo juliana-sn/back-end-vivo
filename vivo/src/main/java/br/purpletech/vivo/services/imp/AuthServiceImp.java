@@ -5,6 +5,7 @@ import br.purpletech.vivo.dtos.auth.AuthResponse;
 import br.purpletech.vivo.dtos.user.UserToCreateDTO;
 import br.purpletech.vivo.exceptions.custom.user.EmailAlreadyUsedException;
 import br.purpletech.vivo.exceptions.custom.team.TeamNotFoundException;
+import br.purpletech.vivo.exceptions.custom.user.UserNotFoundException;
 import br.purpletech.vivo.models.Team;
 import br.purpletech.vivo.models.User;
 import br.purpletech.vivo.repositories.TeamRepository;
@@ -49,13 +50,14 @@ public class AuthServiceImp {
         return "Usuário registrado com sucesso!";
     }
 
-
     public AuthResponse login(AuthRequest request) {
         var auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
+        User user = userRepository.findByEmail(request.email()).orElseThrow(UserNotFoundException::new);
+
 
         String token = jwtService.generateToken(auth.getName(), auth.getAuthorities());
-        return new AuthResponse(token);
+        return new AuthResponse(token, user.getId(), user.getRole().name());
     }
 }

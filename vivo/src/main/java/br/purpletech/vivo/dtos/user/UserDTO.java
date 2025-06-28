@@ -16,6 +16,6 @@ public record UserDTO(
         String position,
         String telephone,
         Role role,
-        String teamName,
+        Long teamId,
         List<Long> onboardingIds
 ) {}

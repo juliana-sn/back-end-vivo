@@ -22,6 +22,8 @@ public class Task {
 
     private boolean standard;
 
+    private boolean completed;
+
     public Long getId() {
         return id;
     }
@@ -48,5 +50,13 @@ public class Task {
 
     public void setStandard(boolean standard) {
         this.standard = standard;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
 }

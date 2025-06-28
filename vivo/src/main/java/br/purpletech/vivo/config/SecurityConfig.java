@@ -79,13 +79,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/steps/{id}").hasRole("MANAGER")
                         .requestMatchers(HttpMethod.PATCH, "/steps/{id}").hasRole("MANAGER")
                         .requestMatchers(HttpMethod.DELETE, "/steps/{id}").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.PUT, "/steps/{id}").hasRole("COLLABORATOR")
 
                         //team
                         .requestMatchers(HttpMethod.GET, "/teams").hasRole("HR")
                         .requestMatchers(HttpMethod.GET, "/teams/{id}").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/teams").hasRole("MANAGER")
-                        .requestMatchers(HttpMethod.PATCH, "/teams/{id}").hasRole("MANAGER")
-                        .requestMatchers(HttpMethod.DELETE, "/teams/{id}").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.POST, "/teams").hasAnyRole("MANAGER", "HR")
+                        .requestMatchers(HttpMethod.PATCH, "/teams/{id}").hasAnyRole("MANAGER", "HR")
+                        .requestMatchers(HttpMethod.DELETE, "/teams/{id}").hasAnyRole("MANAGER", "HR")
                         .requestMatchers(HttpMethod.DELETE, "/teams/{id}/users/{idUser}").hasAnyRole("MANAGER", "HR")
                         .requestMatchers(HttpMethod.POST, "/teams/{id}/platforms/{idPlatform}").hasRole("MANAGER")
                         .requestMatchers(HttpMethod.DELETE, "/teams/{id}/platforms/{idPlatform}").hasRole("MANAGER")

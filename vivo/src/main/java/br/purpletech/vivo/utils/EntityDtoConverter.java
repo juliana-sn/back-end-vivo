@@ -20,8 +20,11 @@ public class EntityDtoConverter {
     public static User toUser(UserToCreateDTO dto, Team team) {
         User user = new User();
         user.setName(dto.name());
+        user.setLastName(dto.lastName());
         user.setEmail(dto.email());
         user.setPassword(dto.password());
+        user.setPosition(dto.position());
+        user.setTelephone(dto.telephone());
         user.setRole(dto.role());
         user.setTeam(team);
         return user;
@@ -40,7 +43,7 @@ public class EntityDtoConverter {
                 user.getPosition(),
                 user.getTelephone(),
                 user.getRole(),
-                user.getTeam() != null ? user.getTeam().getName() : null,
+                user.getTeam() != null ? user.getTeam().getId() : null,
                 user.getOnboarding() != null
                         ? user.getOnboarding().stream()
                         .map(Onboarding::getId)
@@ -88,7 +91,7 @@ public class EntityDtoConverter {
                 step.getId(),
                 step.getName(),
                 step.getDescription(),
-                step.getOrder(),
+                step.getStepOrder(),
                 step.getTasks() != null
                         ? step.getTasks().stream()
                         .map(EntityDtoConverter::toTaskDTO)
@@ -101,7 +104,7 @@ public class EntityDtoConverter {
         Step step = new Step();
         step.setName(dto.name());
         step.setDescription(dto.description());
-        step.setOrder(dto.stepOrder());
+        step.setStepOrder(dto.orderStep());
         return step;
     }
 
@@ -110,7 +113,8 @@ public class EntityDtoConverter {
         return new TaskDTO(
                 task.getId(),
                 task.getName(),
-                task.isStandard()
+                task.isStandard(),
+                task.isCompleted()
         );
     }
 

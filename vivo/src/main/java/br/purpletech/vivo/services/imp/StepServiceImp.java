@@ -54,7 +54,7 @@ public class StepServiceImp implements StepService {
 
         step.setName(updatedStep.name());
         step.setDescription(updatedStep.description());
-        step.setOrder(updatedStep.stepOrder());
+        step.setStepOrder(updatedStep.orderStep());
 
         Step stepSaved = stepRepository.save(step);
         return EntityDtoConverter.toStepDTO(stepSaved);

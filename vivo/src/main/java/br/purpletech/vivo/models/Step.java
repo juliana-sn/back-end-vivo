@@ -25,6 +25,7 @@ public class Step {
     private String name;
     private String description;
 
+    @Column(name = "step_order", nullable = false)
     private Integer stepOrder; // define a sequência
 
     @ManyToOne
@@ -72,11 +73,11 @@ public class Step {
         this.tasks = tasks;
     }
 
-    public Integer getOrder() {
+    public Integer getStepOrder() {
         return stepOrder;
     }
 
-    public void setOrder(Integer order) {
+    public void setStepOrder(Integer order) {
         this.stepOrder = order;
     }
 }
