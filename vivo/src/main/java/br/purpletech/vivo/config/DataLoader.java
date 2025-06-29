@@ -52,42 +52,42 @@ public class DataLoader implements CommandLineRunner {
         teamRepository.save(back);
 
         User manager = new User();
-        user.setName("Paula");
-        user.setLastName("Souza");
-        user.setTeam(back);
-        user.setEmail("paula@email.com");
-        user.setPassword(passwordEncoder.encode("123456"));
-        user.setPosition("Desenvolvedora senior");
-        user.setRole(Role.MANAGER);
-        user.setTelephone("9999999");
+        manager.setName("Paula");
+        manager.setLastName("Souza");
+        manager.setTeam(back);
+        manager.setEmail("paula@email.com");
+        manager.setPassword(passwordEncoder.encode("123456"));
+        manager.setPosition("Desenvolvedora senior");
+        manager.setRole(Role.MANAGER);
+        manager.setTelephone("9999999");
 
         back.getUsers().add(manager);
         userRepository.save(manager);
         teamRepository.save(back);
 
         User buddy = new User();
-        user.setName("Henrique");
-        user.setLastName("Dias");
-        user.setTeam(back);
-        user.setEmail("henrique@email.com");
-        user.setPassword(passwordEncoder.encode("123456"));
-        user.setPosition("Desenvolvedor pleno");
-        user.setRole(Role.BUDDY);
-        user.setTelephone("9999999");
+        buddy.setName("Henrique");
+        buddy.setLastName("Dias");
+        buddy.setTeam(back);
+        buddy.setEmail("henrique@email.com");
+        buddy.setPassword(passwordEncoder.encode("123456"));
+        buddy.setPosition("Desenvolvedor pleno");
+        buddy.setRole(Role.BUDDY);
+        buddy.setTelephone("9999999");
 
         back.getUsers().add(buddy);
         userRepository.save(buddy);
         teamRepository.save(back);
 
         User collaborator = new User();
-        user.setName("Caio");
-        user.setLastName("Fonseca");
-        user.setTeam(back);
-        user.setEmail("caio@email.com");
-        user.setPassword(passwordEncoder.encode("123456"));
-        user.setPosition("Desenvolvedor junior");
-        user.setRole(Role.COLLABORATOR);
-        user.setTelephone("9999999");
+        collaborator.setName("Caio");
+        collaborator.setLastName("Fonseca");
+        collaborator.setTeam(back);
+        collaborator.setEmail("caio@email.com");
+        collaborator.setPassword(passwordEncoder.encode("123456"));
+        collaborator.setPosition("Desenvolvedor junior");
+        collaborator.setRole(Role.COLLABORATOR);
+        collaborator.setTelephone("9999999");
 
         back.getUsers().add(collaborator);
         userRepository.save(collaborator);
