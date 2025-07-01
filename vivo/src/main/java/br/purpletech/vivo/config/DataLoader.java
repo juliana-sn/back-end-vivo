@@ -4,6 +4,7 @@ import br.purpletech.vivo.models.Onboarding;
 import br.purpletech.vivo.models.Role;
 import br.purpletech.vivo.models.Team;
 import br.purpletech.vivo.models.User;
+import br.purpletech.vivo.repositories.OnboardingRepository;
 import br.purpletech.vivo.repositories.TeamRepository;
 import br.purpletech.vivo.repositories.UserRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -17,11 +18,13 @@ public class DataLoader implements CommandLineRunner {
 
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
+    private final OnboardingRepository onboardingRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public DataLoader(TeamRepository teamRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public DataLoader(TeamRepository teamRepository, UserRepository userRepository, OnboardingRepository onboardingRepository, PasswordEncoder passwordEncoder) {
         this.teamRepository = teamRepository;
         this.userRepository = userRepository;
+        this.onboardingRepository = onboardingRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -100,5 +103,13 @@ public class DataLoader implements CommandLineRunner {
         onboarding.setManager(manager);
         onboarding.setBuddy(buddy);
         onboarding.setCollaborator(collaborator);
+
+        manager.getOnboarding().add(onboarding);
+        buddy.getOnboarding().add(onboarding);
+        collaborator.getOnboarding().add(onboarding);
+        userRepository.save(collaborator);
+        userRepository.save(buddy);
+        userRepository.save(manager);
+        onboardingRepository.save(onboarding);
     }
 }
