@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Entity(name = "tb_onboardings")
+@Entity(name = "onboardings")
 public class Onboarding {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

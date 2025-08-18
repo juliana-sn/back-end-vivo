@@ -10,7 +10,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Entity(name = "tb_messages")
+@Entity(name = "messages")
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -9,7 +9,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Entity(name = "tb_reports")
+@Entity(name = "reports")
 public class Report {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

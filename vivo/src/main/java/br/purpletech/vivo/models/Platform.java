@@ -11,7 +11,7 @@ import lombok.Setter;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity(name = "tb_plataforms")
+@Entity(name = "platforms")
 public class Platform {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

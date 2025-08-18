@@ -14,7 +14,7 @@ import java.util.Set;
 
 @Entity
 @Table(
-        name = "tb_steps",
+        name = "steps",
         uniqueConstraints = @UniqueConstraint(columnNames = {"onboarding_id", "step_order"})
 )
 public class Step {

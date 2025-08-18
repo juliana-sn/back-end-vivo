@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface ChatRepository extends JpaRepository<Chat, Long> {
     @Query("""
-    SELECT c FROM tb_chats c 
+    SELECT c FROM chats c 
     JOIN c.participants p 
     WHERE p.id = :userId
 """)

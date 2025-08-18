@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Entity(name = "tb_chats")
+@Entity(name = "chats")
 public class Chat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
