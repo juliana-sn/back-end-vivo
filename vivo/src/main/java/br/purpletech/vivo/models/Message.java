@@ -14,20 +14,21 @@ import java.time.LocalDateTime;
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_message")
     private Long id;
 
     private String content;
 
     private LocalDateTime time = LocalDateTime.now();
 
-    @ManyToOne
     @JsonIgnoreProperties({"lastName", "email", "password", "position", "telephone", "reports", "team", "onboarding"})
-    @JoinColumn(name = "sender_id")
+    @ManyToOne
+    @JoinColumn(name = "id_user", nullable = false)
     private User sender;
 
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "chat_id")
+    @JoinColumn(name = "id_chat")
     private Chat chat;
 
     public Long getId() {

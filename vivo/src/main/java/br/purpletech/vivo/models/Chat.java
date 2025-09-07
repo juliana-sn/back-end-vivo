@@ -16,14 +16,15 @@ import java.util.Set;
 public class Chat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_chat")
     private Long id;
 
     @ManyToMany
     @JsonIgnoreProperties({"lastName", "email", "password", "position", "telephone", "reports", "team", "onboarding"})
     @JoinTable(
-            name = "chat_users",
-            joinColumns = @JoinColumn(name = "chat_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
+            name = "chats_users",
+            joinColumns = @JoinColumn(name = "id_chat"),
+            inverseJoinColumns = @JoinColumn(name = "id_user")
     )
     private Set<User> participants = new HashSet<>();
 

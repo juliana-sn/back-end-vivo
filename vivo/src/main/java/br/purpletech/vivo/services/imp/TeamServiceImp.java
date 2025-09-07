@@ -114,13 +114,11 @@ public class TeamServiceImp implements TeamService {
         Platform platform = platformRepository.findById(idPlatform)
                 .orElseThrow(PlatformNotFoundException::new);
 
-        team.getPlatforms().add(platform);
-        platform.getTeams().add(team);
+        if (!team.getPlatforms().contains(platform)) {
+            team.getPlatforms().add(platform);
+        }
 
-        platformRepository.save(platform);
-        Team teamSaved = teamRepository.save(team);
-
-        return EntityDtoConverter.toTeamDTO(teamSaved);
+        return EntityDtoConverter.toTeamDTO(teamRepository.save(team));
     }
 
     @Transactional
@@ -133,7 +131,11 @@ public class TeamServiceImp implements TeamService {
                 .orElseThrow(PlatformNotFoundException::new);
 
         team.getPlatforms().remove(platform);
+        platform.getTeams().remove(team);
+
         teamRepository.save(team);
+
         return true;
     }
+
 }

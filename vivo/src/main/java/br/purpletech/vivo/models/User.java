@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,8 +13,11 @@ import java.util.Set;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_user")
     private Long id;
     private String name;
+
+    @Column(name = "last_name")
     private String lastName;
 
     @Column(unique = true)
@@ -24,17 +28,20 @@ public class User {
     private String telephone;
 
     @Enumerated(EnumType.STRING)
-    private Role role; // collaborator, buddy or manager
+    private Role role;
 
     @ManyToOne
-    @JsonIgnoreProperties({"users", "platforms"}) // para não ocorrer replicação infinita no json
-    @JoinColumn(name = "team_id")
+    @JsonIgnoreProperties({"users", "platforms"})
+    @JoinColumn(name = "id_team")
     private Team team;
+
+    @OneToMany(mappedBy = "sender")
+    private List<Message> messages = new ArrayList<>();
 
     @ManyToMany
     @JsonIgnoreProperties({"active", "users"})
-    @JoinTable(name = "user_onboarding", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "onboarding_id"))
-    private Set<Onboarding> onboarding = new HashSet<>(); //add controle para colaborador ter somente um
+    @JoinTable(name = "users_onboardings", joinColumns = @JoinColumn(name = "id_user"), inverseJoinColumns = @JoinColumn(name = "id_onboarding"))
+    private Set<Onboarding> onboarding = new HashSet<>();
 
     @OneToMany(mappedBy = "collaborator")
     @OrderBy("createdAt DESC")

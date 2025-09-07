@@ -17,26 +17,20 @@ import java.util.Set;
 public class Onboarding {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_onboarding")
     private Long id;
 
     private LocalDate dt_begin;
     private LocalDate dt_end;
     private boolean active;
 
-    @ManyToOne
-    @JsonIgnoreProperties({"password", "onboarding"}) // para não ocorrer replicação infinita no json
-    @JoinColumn(name = "manager_id")
-    private User manager;
-
-    @ManyToOne
-    @JsonIgnoreProperties({"password", "onboarding"})
-    @JoinColumn(name = "buddy_id")
-    private User buddy;
-
-    @OneToOne
-    @JsonIgnoreProperties({"password", "onboarding"})
-    @JoinColumn(name = "collaborator_id")
-    private User collaborator;
+    @ManyToMany
+    @JoinTable(
+            name = "users_onboardings",
+            joinColumns = @JoinColumn(name = "id_onboarding"),
+            inverseJoinColumns = @JoinColumn(name = "id_user")
+    )
+    private Set<User> users = new HashSet<>();
 
     @OneToMany(mappedBy = "onboarding")
     @JsonIgnoreProperties("onboarding")
@@ -45,11 +39,6 @@ public class Onboarding {
     @OneToMany(mappedBy = "onboarding")
     @OrderBy("createdAt DESC")
     private List<Report> reports  = new ArrayList<>();
-
-    @ManyToOne
-    @JoinColumn(name = "current_step_id")
-    private Step currentStep;
-
 
     public Long getId() {
         return id;
@@ -79,30 +68,6 @@ public class Onboarding {
         this.active = active;
     }
 
-    public User getManager() {
-        return manager;
-    }
-
-    public void setManager(User manager) {
-        this.manager = manager;
-    }
-
-    public User getBuddy() {
-        return buddy;
-    }
-
-    public void setBuddy(User buddy) {
-        this.buddy = buddy;
-    }
-
-    public User getCollaborator() {
-        return collaborator;
-    }
-
-    public void setCollaborator(User collaborator) {
-        this.collaborator = collaborator;
-    }
-
     public List<Step> getSteps() {
         return steps;
     }
@@ -120,10 +85,18 @@ public class Onboarding {
     }
 
     public Step getCurrentStep() {
-        return currentStep;
+        if (steps == null) return null;
+        return steps.stream()
+                .filter(Step::isInProgress)
+                .findFirst()
+                .orElse(null);
     }
 
-    public void setCurrentStep(Step currentStep) {
-        this.currentStep = currentStep;
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
     }
 }

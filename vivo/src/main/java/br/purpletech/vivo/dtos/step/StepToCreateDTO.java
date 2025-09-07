@@ -9,6 +9,8 @@ public record StepToCreateDTO(
         @NotBlank(message = "A descrição é obrigatória")
         String description,
 
+        boolean inProgress,
+
         @NotBlank(message = "O número para ordenar a etapa é obrigatório")
         Integer orderStep
 ) {}

@@ -15,6 +15,7 @@ import java.util.Set;
 public class Platform {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_platform")
     private Long id;
 
     @Column(unique = true)

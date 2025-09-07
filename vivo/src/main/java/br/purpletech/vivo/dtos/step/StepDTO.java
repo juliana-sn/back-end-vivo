@@ -9,6 +9,7 @@ public record StepDTO(
         Long id,
         String name,
         String description,
-        Integer orderStep, // novo campo para ordenar
+        boolean inProgress,
+        Integer orderStep,
         List<TaskDTO> tasks
 ) {}

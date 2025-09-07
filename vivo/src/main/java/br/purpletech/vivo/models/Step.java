@@ -20,6 +20,7 @@ import java.util.Set;
 public class Step {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_step")
     private Long id;
 
     private String name;
@@ -28,9 +29,12 @@ public class Step {
     @Column(name = "step_order", nullable = false)
     private Integer stepOrder; // define a sequência
 
+    @Column(name = "in_progress")
+    private boolean inProgress;
+
     @ManyToOne
     @JsonIgnoreProperties("steps")
-    @JoinColumn(name = "onboarding_id")
+    @JoinColumn(name = "id_onboarding")
     private Onboarding onboarding;
 
     @OneToMany(mappedBy = "step")
@@ -57,6 +61,7 @@ public class Step {
         this.description = description;
     }
 
+
     public Onboarding getOnboarding() {
         return onboarding;
     }
@@ -80,4 +85,14 @@ public class Step {
     public void setStepOrder(Integer order) {
         this.stepOrder = order;
     }
+
+    public boolean isInProgress() {
+        return inProgress;
+    }
+
+    public void setInProgress(boolean inProgress) {
+        this.inProgress = inProgress;
+    }
+
+
 }

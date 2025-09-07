@@ -1,6 +1,7 @@
 package br.purpletech.vivo.services.imp;
 
 import br.purpletech.vivo.dtos.chat.ChatDTO;
+import br.purpletech.vivo.dtos.message.MessageToCreateDTO;
 import br.purpletech.vivo.models.Chat;
 import br.purpletech.vivo.models.Message;
 import br.purpletech.vivo.models.User;
@@ -67,12 +68,13 @@ public class ChatServiceImp implements ChatService {
     }
 
     @Transactional
-    public ChatDTO sendMessage(Long senderId, Long receiverId, Message message) {
+    public ChatDTO sendMessage(Long senderId, Long receiverId, MessageToCreateDTO messageToCreate) {
         Chat chat = findOrCreateChat(senderId, receiverId);
 
         User sender = userRepository.findById(senderId)
                 .orElseThrow(UserNotFoundException::new);
 
+        Message message = EntityDtoConverter.toMessage(messageToCreate);
         message.setSender(sender);
         message.setChat(chat);
         messageRepository.save(message);

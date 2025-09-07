@@ -13,8 +13,10 @@ import java.time.LocalDate;
 public class Report {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_report")
     private Long id;
 
+    @Column(name = "created_at")
     private LocalDate createdAt = LocalDate.now();
 
     private int feeling; // de 1 a 4
@@ -23,16 +25,18 @@ public class Report {
 
     private String event;
 
+
+    @Column(name = "report_comment")
     private String comment;
 
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "collaborator_id")
+    @JoinColumn(name = "id_user")
     private User collaborator;
 
     @ManyToOne
     @JsonIgnore
-    @JoinColumn (name = "onboarding_id")
+    @JoinColumn (name = "id_onboarding")
     private Onboarding onboarding;
 
     public Long getId() {

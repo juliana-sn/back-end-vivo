@@ -73,19 +73,16 @@ public class UserServiceImp implements UserService {
                 .orElseThrow(TeamNotFoundException::new);
 
         Team currentTeam = user.getTeam();
-        if (currentTeam != null) {
+        if (currentTeam != null && !currentTeam.equals(newTeam)) {
             currentTeam.getUsers().remove(user);
-            teamRepository.save(currentTeam);
         }
 
         user.setTeam(newTeam);
         newTeam.getUsers().add(user);
 
-        teamRepository.save(newTeam);
-        User updatedUser = userRepository.save(user);
-
-        return EntityDtoConverter.toUserDTO(updatedUser);
+        return EntityDtoConverter.toUserDTO(userRepository.save(user));
     }
+
 
     @Transactional
     public void deleteUser(Long id) {
@@ -96,22 +93,49 @@ public class UserServiceImp implements UserService {
 
     @Transactional
     public ChatDTO sendMessageToUser(Long senderId, Long receiverId, MessageToCreateDTO messageToCreate) {
-        Message message = EntityDtoConverter.toMessage(messageToCreate);
-        return chatServiceImp.sendMessage(senderId, receiverId, message);
+        return chatServiceImp.sendMessage(senderId, receiverId, messageToCreate);
     }
 
     public ChatDTO getChatManager(Long idUser) {
-        OnboardingDTO onboarding = onboardingServiceImp.findManagerByCollaboratorId(idUser);
-        Long managerId = onboarding.manager().id();
-        Chat chatFound = chatServiceImp.findOrCreateChat(idUser, managerId);
-        return EntityDtoConverter.toChatDTO(chatFound);
+        User collaborator = userRepository.findById(idUser)
+                .orElseThrow(UserNotFoundException::new);
+
+        if (collaborator.getRole() != Role.COLLABORATOR) {
+            throw new IllegalStateException("Usuário informado não é um colaborador.");
+        }
+
+        Onboarding onboarding = collaborator.getOnboarding().stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Colaborador não está vinculado a nenhum onboarding."));
+
+        User manager = onboarding.getUsers().stream()
+                .filter(user -> user.getRole() == Role.MANAGER)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Nenhum usuário gestor encontrado."));
+
+        Chat chat = chatServiceImp.findOrCreateChat(collaborator.getId(), manager.getId());
+        return EntityDtoConverter.toChatDTO(chat);
     }
 
     public ChatDTO getChatBuddy(Long idUser) {
-        OnboardingDTO onboarding = onboardingServiceImp.findBuddyByCollaboratorId(idUser);
-        Long buddyId = onboarding.buddy().id();
-        Chat chatFound = chatServiceImp.findOrCreateChat(idUser, buddyId);
-        return EntityDtoConverter.toChatDTO(chatFound);
+        User collaborator = userRepository.findById(idUser)
+                .orElseThrow(UserNotFoundException::new);
+
+        if (collaborator.getRole() != Role.COLLABORATOR) {
+            throw new IllegalStateException("Usuário informado não é um colaborador.");
+        }
+
+        Onboarding onboarding = collaborator.getOnboarding().stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Colaborador não está vinculado a nenhum onboarding."));
+
+        User buddy = onboarding.getUsers().stream()
+                .filter(user -> user.getRole() == Role.BUDDY)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Nenhum usuário buddy encontrado."));
+
+        Chat chat = chatServiceImp.findOrCreateChat(collaborator.getId(), buddy.getId());
+        return EntityDtoConverter.toChatDTO(chat);
     }
 
     public ChatDTO getChatWithUsers(Long senderId, Long receiverId) {

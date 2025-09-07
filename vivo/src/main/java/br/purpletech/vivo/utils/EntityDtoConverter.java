@@ -91,6 +91,7 @@ public class EntityDtoConverter {
                 step.getId(),
                 step.getName(),
                 step.getDescription(),
+                step.isInProgress(),
                 step.getStepOrder(),
                 step.getTasks() != null
                         ? step.getTasks().stream()
@@ -104,6 +105,7 @@ public class EntityDtoConverter {
         Step step = new Step();
         step.setName(dto.name());
         step.setDescription(dto.description());
+        step.setInProgress(dto.inProgress());
         step.setStepOrder(dto.orderStep());
         return step;
     }
@@ -144,15 +146,23 @@ public class EntityDtoConverter {
     }
 
     //Onboarding
+
+    private static User findUserByRole(Onboarding onboarding, Role role) {
+        return onboarding.getUsers().stream()
+                .filter(user -> user.getRole().equals(role))
+                .findFirst()
+                .orElse(null);
+    }
+
     public static OnboardingDTO toOnboardingDTO(Onboarding onboarding) {
         return new OnboardingDTO(
                 onboarding.getId(),
                 onboarding.getDt_begin(),
                 onboarding.getDt_end(),
                 onboarding.isActive(),
-                toUserDTO(onboarding.getManager()),
-                toUserDTO(onboarding.getBuddy()),
-                toUserDTO(onboarding.getCollaborator()),
+                toUserDTO(findUserByRole(onboarding, Role.MANAGER)),
+                toUserDTO(findUserByRole(onboarding, Role.BUDDY)),
+                toUserDTO(findUserByRole(onboarding, Role.COLLABORATOR)),
                 onboarding.getSteps() != null
                         ? onboarding.getSteps().stream()
                         .map(EntityDtoConverter::toStepDTO)

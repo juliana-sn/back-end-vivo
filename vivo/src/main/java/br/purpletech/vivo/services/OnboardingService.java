@@ -30,9 +30,6 @@ public interface OnboardingService {
 
     OnboardingDTO addReport(Long id, ReportToCreateDTO report);
     Optional<List<ReportDTO>> getReports (Long id);
-
-    OnboardingDTO findManagerByCollaboratorId(Long collaboratorId);
-    OnboardingDTO findBuddyByCollaboratorId(Long collaboratorId);
     OnboardingDTO createChats(Long onboardingId);
 
 }

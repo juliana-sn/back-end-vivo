@@ -67,10 +67,8 @@ public class PlatformServiceImp implements PlatformService {
         Platform platform = platformRepository.findById(id)
                 .orElseThrow(PlatformNotFoundException::new);
 
-        boolean nameUsed = platformRepository.existsByName(updatedPlatform.name());
-        boolean sameName = platform.getName().equalsIgnoreCase(updatedPlatform.name());
-
-        if (nameUsed && !sameName) {
+        if (!platform.getName().equalsIgnoreCase(updatedPlatform.name()) &&
+                platformRepository.existsByName(updatedPlatform.name())) {
             throw new PlatformNameAlreadyUsedException();
         }
 

@@ -43,6 +43,15 @@ public class SecurityConfig {
                         //auth
                         .requestMatchers("/auth/**").permitAll()
 
+                        //swagger
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
+
+
                         //onboarding
                         .requestMatchers(HttpMethod.GET, "/onboardings").hasRole("HR")
                         .requestMatchers(HttpMethod.GET, "/onboardings/{id}").authenticated()

@@ -77,12 +77,10 @@ public class StepServiceImp implements StepService {
 
         Task task = EntityDtoConverter.toTask(taskToCreate);
         task.setStep(step);
-        Task savedTask = taskRepository.save(task);
 
-        step.getTasks().add(savedTask);
-        Step stepSaved = stepRepository.save(step);
+        taskRepository.save(task);
 
-        return EntityDtoConverter.toStepDTO(stepSaved);
+        return EntityDtoConverter.toStepDTO(step);
     }
 
     @Transactional
@@ -94,10 +92,7 @@ public class StepServiceImp implements StepService {
         Task task = taskRepository.findById(idTask)
                 .orElseThrow(TaskNotFoundException::new);
 
-        step.getTasks().remove(task);
         task.setStep(null);
-
-        stepRepository.save(step);
         taskRepository.save(task);
     }
 

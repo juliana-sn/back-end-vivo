@@ -73,20 +73,11 @@ public class OnboardingServiceImp implements OnboardingService {
         Onboarding onboarding = onboardingRepository.findById(id)
                 .orElseThrow(OnboardingNotFoundException::new);
 
-        if (onboarding.getManager() != null) {
-            onboarding.getManager().getOnboarding().remove(onboarding);
-            onboarding.setManager(null);
+        for (User user : onboarding.getUsers()) {
+            user.getOnboarding().remove(onboarding);
         }
 
-        if (onboarding.getBuddy() != null) {
-            onboarding.getBuddy().getOnboarding().remove(onboarding);
-            onboarding.setBuddy(null);
-        }
-
-        if (onboarding.getCollaborator() != null) {
-            onboarding.getCollaborator().getOnboarding().remove(onboarding);
-            onboarding.setCollaborator(null);
-        }
+        onboarding.getUsers().clear();
 
         onboardingRepository.save(onboarding);
         onboardingRepository.delete(onboarding);
@@ -107,24 +98,29 @@ public class OnboardingServiceImp implements OnboardingService {
         return EntityDtoConverter.toOnboardingDTO(saved);
     }
 
+    private User getUserByRole(Onboarding onboarding, Role role) {
+        return onboarding.getUsers().stream()
+                .filter(user -> user.getRole().equals(role))
+                .findFirst()
+                .orElse(null);
+    }
 
     @Override
     public Optional<List<OnboardingDTO>> findByManagerId(Long userId) {
-        return onboardingRepository.findByManagerId(userId)
-                .map(onboardings -> onboardings.stream()
-                        .map(EntityDtoConverter::toOnboardingDTO)
-                        .toList()
-                );
+        List<Onboarding> onboardings = onboardingRepository.findOnboardingsByManagerId(userId);
+        return Optional.of(onboardings.stream()
+                .map(EntityDtoConverter::toOnboardingDTO)
+                .toList());
     }
 
     @Override
     public Optional<List<OnboardingDTO>> findByBuddyId(Long userId) {
-        return onboardingRepository.findByBuddyId(userId)
-                .map(onboardings -> onboardings.stream()
-                        .map(EntityDtoConverter::toOnboardingDTO)
-                        .toList()
-                );
+        List<Onboarding> onboardings = onboardingRepository.findOnboardingsByBuddyId(userId);
+        return Optional.of(onboardings.stream()
+                .map(EntityDtoConverter::toOnboardingDTO)
+                .toList());
     }
+
 
     @Transactional
     @Override
@@ -135,16 +131,17 @@ public class OnboardingServiceImp implements OnboardingService {
         User user = userRepository.findById(idUser)
                 .orElseThrow(UserNotFoundException::new);
 
-        user.getOnboarding().add(onboarding);
-
-        switch (user.getRole()) {
-            case MANAGER -> onboarding.setManager(user);
-            case BUDDY -> onboarding.setBuddy(user);
-            default -> onboarding.setCollaborator(user);
+        if (user.getRole() == Role.COLLABORATOR) {
+            if(!user.getOnboarding().isEmpty()){
+                throw new IllegalStateException("Usuário colaborador já está vinculado a um onboarding.");
+            }
         }
 
-        Onboarding saved = onboardingRepository.save(onboarding);
-        return EntityDtoConverter.toOnboardingDTO(saved);
+        user.getOnboarding().add(onboarding);
+        onboarding.getUsers().add(user);
+
+        userRepository.save(user);
+        return EntityDtoConverter.toOnboardingDTO(onboarding);
     }
 
     @Transactional
@@ -156,26 +153,22 @@ public class OnboardingServiceImp implements OnboardingService {
         User user = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
 
-        switch (user.getRole()) {
-            case MANAGER -> onboarding.setManager(null);
-            case BUDDY -> onboarding.setBuddy(null);
-            default -> onboarding.setCollaborator(null);
-        }
-
+        onboarding.getUsers().remove(user);
         user.getOnboarding().remove(onboarding);
-        onboardingRepository.save(onboarding);
+
         userRepository.save(user);
     }
 
 
     @Override
+    @Transactional
     public OnboardingDTO createChats(Long onboardingId) {
         Onboarding onboarding = onboardingRepository.findById(onboardingId)
                 .orElseThrow(OnboardingNotFoundException::new);
 
-        User collaborator = onboarding.getCollaborator();
-        User manager = onboarding.getManager();
-        User buddy = onboarding.getBuddy();
+        User collaborator = getUserByRole(onboarding, Role.COLLABORATOR);
+        User manager = getUserByRole(onboarding, Role.MANAGER);
+        User buddy = getUserByRole(onboarding, Role.BUDDY);
 
         if (collaborator != null && manager != null) {
             chatServiceImp.findOrCreateChat(collaborator.getId(), manager.getId());
@@ -199,15 +192,16 @@ public class OnboardingServiceImp implements OnboardingService {
         Step step = EntityDtoConverter.toStep(stepToCreate);
         step.setOnboarding(onboarding);
 
-        Step savedStep = stepRepository.save(step);
-        onboarding.getSteps().add(savedStep);
+        step.setInProgress(false);
 
-        if(onboarding.getCurrentStep() == null){
-            onboarding.setCurrentStep(step);
+        if (onboarding.getCurrentStep() == null) {
+            step.setInProgress(true);
         }
 
-        Onboarding saved = onboardingRepository.save(onboarding);
-        return EntityDtoConverter.toOnboardingDTO(saved);
+        step.setOnboarding(onboarding);
+        stepRepository.save(step);
+
+        return EntityDtoConverter.toOnboardingDTO(onboarding);
     }
 
 
@@ -220,10 +214,7 @@ public class OnboardingServiceImp implements OnboardingService {
         Step step = stepRepository.findById(idStep)
                 .orElseThrow(StepNotFoundException::new);
 
-        onboarding.getSteps().remove(step);
         step.setOnboarding(null);
-
-        onboardingRepository.save(onboarding);
         stepRepository.save(step);
     }
 
@@ -233,15 +224,21 @@ public class OnboardingServiceImp implements OnboardingService {
         Onboarding onboarding = onboardingRepository.findById(id)
                 .orElseThrow(OnboardingNotFoundException::new);
 
+        User collaborator = getUserByRole(onboarding, Role.COLLABORATOR);
+
+        if (collaborator == null) {
+            throw new UserNotFoundException();
+        }
+
         Report report = EntityDtoConverter.toReport(reportToCreate);
         report.setOnboarding(onboarding);
-        report.setCollaborator(onboarding.getCollaborator());
+        report.setCollaborator(collaborator);
+
+        report.setOnboarding(onboarding);
+        report.setCollaborator(collaborator);
 
         reportRepository.save(report);
-        onboarding.getReports().add(report);
-
-        Onboarding saved = onboardingRepository.save(onboarding);
-        return EntityDtoConverter.toOnboardingDTO(saved);
+        return EntityDtoConverter.toOnboardingDTO(onboarding);
     }
 
     @Override
@@ -253,52 +250,40 @@ public class OnboardingServiceImp implements OnboardingService {
                 );
     }
 
-    @Override
-    public OnboardingDTO findManagerByCollaboratorId(Long collaboratorId) {
-        Onboarding onboarding = Optional.ofNullable(onboardingRepository.findManagerByCollaboratorId(collaboratorId))
-                .orElseThrow(OnboardingNotFoundException::new);
-
-        return EntityDtoConverter.toOnboardingDTO(onboarding);
-    }
-
-    @Override
-    public OnboardingDTO findBuddyByCollaboratorId(Long collaboratorId) {
-        Onboarding onboarding = Optional.ofNullable(onboardingRepository.findBuddyByCollaboratorId(collaboratorId))
-                .orElseThrow(OnboardingNotFoundException::new);
-
-        return EntityDtoConverter.toOnboardingDTO(onboarding);
-    }
-
     @Transactional
     public OnboardingDTO getNextStep(Long onboardingId) {
         Onboarding onboarding = onboardingRepository.findById(onboardingId)
                 .orElseThrow(OnboardingNotFoundException::new);
 
-        List<Step> steps = onboarding.getSteps().stream()
+        List<Step> orderedSteps = onboarding.getSteps().stream()
                 .sorted(Comparator.comparing(Step::getStepOrder))
                 .toList();
 
-        if (steps.isEmpty()) {
-            onboarding.setCurrentStep(null);
-        } else if (onboarding.getCurrentStep() == null) {
-            onboarding.setCurrentStep(steps.get(0)); // começa na primeira etapa
+        Step currentStep = onboarding.getCurrentStep();
+
+        if (orderedSteps.isEmpty()) {
+            return EntityDtoConverter.toOnboardingDTO(onboarding);
+        }
+
+        if (currentStep == null) {
+            orderedSteps.get(0).setInProgress(true);
         } else {
-            for (int i = 0; i < steps.size() - 1; i++) {
-                if (steps.get(i).getId().equals(onboarding.getCurrentStep().getId())) {
-                    onboarding.setCurrentStep(steps.get(i + 1)); // próxima etapa
-                    break;
-                }
-            }
-            // Se já estiver na última etapa, fica null
-            if (steps.get(steps.size() - 1).getId().equals(onboarding.getCurrentStep().getId())) {
-                onboarding.setCurrentStep(null);
+            currentStep.setInProgress(false);
+            stepRepository.save(currentStep);
+
+            Step nextStep = orderedSteps.stream()
+                    .filter(step -> step.getStepOrder() > currentStep.getStepOrder())
+                    .findFirst()
+                    .orElse(null);
+
+            if (nextStep != null) {
+                nextStep.setInProgress(true);
+                stepRepository.save(nextStep);
             }
         }
 
-        onboardingRepository.save(onboarding);
         return EntityDtoConverter.toOnboardingDTO(onboarding);
     }
-
 
     private void validateStepOrder(Onboarding onboarding, Integer order) {
         boolean exists = onboarding.getSteps().stream()

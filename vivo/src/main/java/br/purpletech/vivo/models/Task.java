@@ -11,13 +11,14 @@ import lombok.Setter;
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_task")
     private Long id;
 
     private String name;
 
     @ManyToOne
     @JsonIgnoreProperties("tasks") // para não ocorrer replicação infinita no json
-    @JoinColumn(name = "step_id")
+    @JoinColumn(name = "id_step")
     private Step step;
 
     private boolean standard;
