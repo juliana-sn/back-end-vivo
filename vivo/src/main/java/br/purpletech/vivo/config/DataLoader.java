@@ -59,7 +59,7 @@ public class DataLoader implements CommandLineRunner {
         user.setPassword(passwordEncoder.encode("123456"));
         user.setPosition("Chefe de departamento pessoal");
         user.setRole(Role.HR);
-        user.setTelephone("9999999");
+        user.setTelephone("(00)90000-0000");
         user.setTeam(rh);
         userRepository.save(user);
 
@@ -75,7 +75,7 @@ public class DataLoader implements CommandLineRunner {
         manager.setPassword(passwordEncoder.encode("123456"));
         manager.setPosition("Desenvolvedora senior");
         manager.setRole(Role.MANAGER);
-        manager.setTelephone("9999999");
+        manager.setTelephone("(11)91111-1111");
         manager.setTeam(back);
 
         User buddy = new User();
@@ -85,7 +85,7 @@ public class DataLoader implements CommandLineRunner {
         buddy.setPassword(passwordEncoder.encode("123456"));
         buddy.setPosition("Desenvolvedor pleno");
         buddy.setRole(Role.BUDDY);
-        buddy.setTelephone("9999999");
+        buddy.setTelephone("(11)92222-2222");
         buddy.setTeam(back);
 
         User collaborator = new User();
@@ -95,10 +95,20 @@ public class DataLoader implements CommandLineRunner {
         collaborator.setPassword(passwordEncoder.encode("123456"));
         collaborator.setPosition("Desenvolvedor junior");
         collaborator.setRole(Role.COLLABORATOR);
-        collaborator.setTelephone("9999999");
+        collaborator.setTelephone("(11)93333-3333");
         collaborator.setTeam(back);
 
-        userRepository.saveAll(List.of(manager, buddy, collaborator));
+        User collaborator2 = new User();
+        collaborator2.setName("Amanda");
+        collaborator2.setLastName("Santos");
+        collaborator2.setEmail("amanda@email.com");
+        collaborator2.setPassword(passwordEncoder.encode("123456"));
+        collaborator2.setPosition("Desenvolvedora junior");
+        collaborator2.setRole(Role.COLLABORATOR);
+        collaborator2.setTelephone("(11)94444-4444");
+        collaborator2.setTeam(back);
+
+        userRepository.saveAll(List.of(manager, buddy, collaborator, collaborator2));
 
         Onboarding onboarding = new Onboarding();
         onboarding.setDt_begin(LocalDate.now());
