@@ -52,7 +52,7 @@ public class OnboardingController {
         return ResponseEntity.ok(onboardings);
     }
 
-    @GetMapping("/buddy/{id_buddy}")
+    @GetMapping("/buddy/{idBuddy}")
     public ResponseEntity<Optional<List<OnboardingDTO>>> getOnboardingByBuddyId(@PathVariable Long idBuddy){
         var onboardings = onboardingServiceImp.findByBuddyId(idBuddy);
         return ResponseEntity.ok(onboardings);

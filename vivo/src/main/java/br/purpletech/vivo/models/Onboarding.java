@@ -24,12 +24,8 @@ public class Onboarding {
     private LocalDate dt_end;
     private boolean active;
 
-    @ManyToMany
-    @JoinTable(
-            name = "users_onboardings",
-            joinColumns = @JoinColumn(name = "id_onboarding"),
-            inverseJoinColumns = @JoinColumn(name = "id_user")
-    )
+    @ManyToMany(mappedBy = "onboarding")
+    @JsonIgnoreProperties("onboarding")
     private Set<User> users = new HashSet<>();
 
     @OneToMany(mappedBy = "onboarding")

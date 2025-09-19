@@ -104,8 +104,11 @@ public class DataLoader implements CommandLineRunner {
         onboarding.setDt_begin(LocalDate.now());
         onboarding.setDt_end(LocalDate.now().plusDays(90));
         onboarding.setActive(true);
-        onboarding.getUsers().addAll(List.of(manager, buddy, collaborator));
         onboardingRepository.save(onboarding);
+        onboardingService.addUser(onboarding.getId(), manager.getId());
+        onboardingService.addUser(onboarding.getId(), buddy.getId());
+        onboardingService.addUser(onboarding.getId(), collaborator.getId());
+
 
         onboardingService.createChats(onboarding.getId());
 

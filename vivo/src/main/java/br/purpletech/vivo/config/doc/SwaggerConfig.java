@@ -14,12 +14,6 @@ import org.springframework.context.annotation.Configuration;
                 description = "Documentação da API do projeto Vivo Now da equipe PurpleTech"
         )
 )
-@SecurityScheme(
-        name = "bearerAuth",
-        type = SecuritySchemeType.HTTP,
-        scheme = "bearer",
-        bearerFormat = "JWT"
-)
 public class SwaggerConfig {
 }
 
