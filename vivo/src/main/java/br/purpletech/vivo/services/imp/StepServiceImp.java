@@ -66,6 +66,8 @@ public class StepServiceImp implements StepService {
         Step step = stepRepository.findById(id)
                 .orElseThrow(StepNotFoundException::new);
 
+        taskRepository.deleteAll(step.getTasks());
+
         stepRepository.delete(step);
     }
 

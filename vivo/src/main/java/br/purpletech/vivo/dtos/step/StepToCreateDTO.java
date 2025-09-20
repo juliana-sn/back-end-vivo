@@ -1,6 +1,7 @@
 package br.purpletech.vivo.dtos.step;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record StepToCreateDTO(
         @NotBlank(message = "Nome da etapa é obrigatório")
@@ -11,6 +12,6 @@ public record StepToCreateDTO(
 
         boolean inProgress,
 
-        @NotBlank(message = "O número para ordenar a etapa é obrigatório")
+        @NotNull(message = "O número para ordenar a etapa é obrigatório")
         Integer orderStep
 ) {}

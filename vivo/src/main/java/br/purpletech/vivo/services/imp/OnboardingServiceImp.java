@@ -7,10 +7,7 @@ import br.purpletech.vivo.dtos.report.ReportToCreateDTO;
 import br.purpletech.vivo.dtos.step.StepToCreateDTO;
 import br.purpletech.vivo.exceptions.custom.step.OrderStepAlreadyUsedException;
 import br.purpletech.vivo.models.*;
-import br.purpletech.vivo.repositories.OnboardingRepository;
-import br.purpletech.vivo.repositories.ReportRepository;
-import br.purpletech.vivo.repositories.StepRepository;
-import br.purpletech.vivo.repositories.UserRepository;
+import br.purpletech.vivo.repositories.*;
 import br.purpletech.vivo.services.OnboardingService;
 import br.purpletech.vivo.utils.EntityDtoConverter;
 import br.purpletech.vivo.exceptions.custom.onboarding.*;
@@ -31,6 +28,9 @@ public class OnboardingServiceImp implements OnboardingService {
 
     @Autowired
     private ReportRepository reportRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -214,8 +214,9 @@ public class OnboardingServiceImp implements OnboardingService {
         Step step = stepRepository.findById(idStep)
                 .orElseThrow(StepNotFoundException::new);
 
+        taskRepository.deleteAll(step.getTasks());
         step.setOnboarding(null);
-        stepRepository.save(step);
+        stepRepository.delete(step);
     }
 
     @Transactional
