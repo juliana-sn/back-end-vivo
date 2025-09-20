@@ -5,16 +5,18 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Entity(name = "tb_teams")
+@Entity(name = "teams")
 public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_team")
     private Long id;
 
     @Column(unique = true)
@@ -23,11 +25,11 @@ public class Team {
     private String department;
 
     @OneToMany(mappedBy = "team")
-    @JsonIgnoreProperties({"password", "team", "onboarding"}) // para não ocorrer replicação infinita no json
+    @JsonIgnoreProperties({"password", "team", "onboarding"})
     private Set<User> users = new HashSet<>();
 
     @ManyToMany
-    @JoinTable(name = "team_platform", joinColumns = @JoinColumn(name = "team_id"), inverseJoinColumns = @JoinColumn(name = "platform_id"))
+    @JoinTable(name = "teams_platforms", joinColumns = @JoinColumn(name = "id_team"), inverseJoinColumns = @JoinColumn(name = "id_platform"))
     private Set<Platform> platforms = new HashSet<>();
 
     public Long getId() {

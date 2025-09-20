@@ -4,44 +4,37 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@Entity(name = "tb_onboardings")
+@Entity(name = "onboardings")
 public class Onboarding {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_onboarding")
     private Long id;
 
     private LocalDate dt_begin;
     private LocalDate dt_end;
     private boolean active;
 
-    @ManyToOne
-    @JsonIgnoreProperties({"password", "onboarding"}) // para não ocorrer replicação infinita no json
-    @JoinColumn(name = "manager_id")
-    private User manager;
-
-    @ManyToOne
-    @JsonIgnoreProperties({"password", "onboarding"})
-    @JoinColumn(name = "buddy_id")
-    private User buddy;
-
-    @OneToOne
-    @JsonIgnoreProperties({"password", "onboarding"})
-    @JoinColumn(name = "collaborator_id")
-    private User collaborator;
+    @ManyToMany(mappedBy = "onboarding")
+    @JsonIgnoreProperties("onboarding")
+    private Set<User> users = new HashSet<>();
 
     @OneToMany(mappedBy = "onboarding")
     @JsonIgnoreProperties("onboarding")
-    private Set<Step> steps = new HashSet<>();
+    private List<Step> steps;
 
+    @OneToMany(mappedBy = "onboarding")
+    @OrderBy("createdAt DESC")
+    private List<Report> reports  = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -71,35 +64,35 @@ public class Onboarding {
         this.active = active;
     }
 
-    public User getManager() {
-        return manager;
-    }
-
-    public void setManager(User manager) {
-        this.manager = manager;
-    }
-
-    public User getBuddy() {
-        return buddy;
-    }
-
-    public void setBuddy(User buddy) {
-        this.buddy = buddy;
-    }
-
-    public User getCollaborator() {
-        return collaborator;
-    }
-
-    public void setCollaborator(User collaborator) {
-        this.collaborator = collaborator;
-    }
-
-    public Set<Step> getSteps() {
+    public List<Step> getSteps() {
         return steps;
     }
 
-    public void setSteps(Set<Step> steps) {
+    public void setSteps(List<Step> steps) {
         this.steps = steps;
+    }
+
+    public List<Report> getReports() {
+        return reports;
+    }
+
+    public void setReports(List<Report> reports) {
+        this.reports = reports;
+    }
+
+    public Step getCurrentStep() {
+        if (steps == null) return null;
+        return steps.stream()
+                .filter(Step::isInProgress)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
     }
 }

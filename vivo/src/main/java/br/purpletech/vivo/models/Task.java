@@ -2,23 +2,28 @@ package br.purpletech.vivo.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity(name = "tb_tasks")
-@Getter
-@Setter
+@Entity(name = "tasks")
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_task")
     private Long id;
 
     private String name;
 
     @ManyToOne
     @JsonIgnoreProperties("tasks") // para não ocorrer replicação infinita no json
-    @JoinColumn(name = "step_id")
+    @JoinColumn(name = "id_step")
     private Step step;
+
+    private boolean standard;
+
+    private boolean completed;
 
     public Long getId() {
         return id;
@@ -38,5 +43,21 @@ public class Task {
 
     public void setStep(Step step) {
         this.step = step;
+    }
+
+    public boolean isStandard() {
+        return standard;
+    }
+
+    public void setStandard(boolean standard) {
+        this.standard = standard;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
 }

@@ -1,12 +1,17 @@
 package br.purpletech.vivo.services.imp;
 
+import br.purpletech.vivo.dtos.task.TaskDTO;
+import br.purpletech.vivo.dtos.task.TaskToCreateDTO;
 import br.purpletech.vivo.models.Task;
 import br.purpletech.vivo.repositories.TaskRepository;
 import br.purpletech.vivo.services.TaskService;
+import br.purpletech.vivo.utils.EntityDtoConverter;
+import br.purpletech.vivo.exceptions.custom.task.TaskNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskServiceImp implements TaskService {
@@ -17,33 +22,60 @@ public class TaskServiceImp implements TaskService {
     }
 
     @Override
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+    public List<TaskDTO> getAllTasks() {
+        return taskRepository.findByStandardTrue().stream()
+                .map(EntityDtoConverter::toTaskDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Optional<Task> getById(Long id) {
-        return taskRepository.findById(id);
+    public TaskDTO getById(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(TaskNotFoundException::new);
+
+        return EntityDtoConverter.toTaskDTO(task);
     }
 
+    @Transactional
     @Override
-    public Task createTask(Task taskToCreate) {
-        return taskRepository.save(taskToCreate);
+    public TaskDTO createTask(TaskToCreateDTO taskToCreate) {
+        Task task = EntityDtoConverter.toTask(taskToCreate);
+        Task taskSaved = taskRepository.save(task);
+        return EntityDtoConverter.toTaskDTO(taskSaved);
     }
 
+    @Transactional
     @Override
-    public boolean deleteTask(Long id) {
-        return taskRepository.findById(id).map(task -> {
-            taskRepository.delete(task);
-            return true;
-        }).orElse(false);
+    public void deleteTask(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(TaskNotFoundException::new);
+
+        taskRepository.delete(task);
     }
 
+
+    @Transactional
     @Override
-    public Optional<Task> updateNameTask(Long id, Task updatedTask) {
-        return taskRepository.findById(id).map(task -> {
-            task.setName(updatedTask.getName());
-            return taskRepository.save(task);
-        });
+    public TaskDTO updateNameTask(Long id, TaskToCreateDTO updatedTask) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(TaskNotFoundException::new);
+
+        task.setName(updatedTask.name());
+        Task updated = taskRepository.save(task);
+
+        return EntityDtoConverter.toTaskDTO(updated);
     }
+
+    @Transactional
+    @Override
+    public TaskDTO updateStatusTask(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(TaskNotFoundException::new);
+
+        task.setCompleted(true);
+        Task updated = taskRepository.save(task);
+
+        return EntityDtoConverter.toTaskDTO(updated);
+    }
+
 }

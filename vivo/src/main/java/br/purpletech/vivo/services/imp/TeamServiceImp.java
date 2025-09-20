@@ -1,5 +1,12 @@
 package br.purpletech.vivo.services.imp;
 
+import br.purpletech.vivo.dtos.team.TeamDTO;
+import br.purpletech.vivo.dtos.team.TeamToCreateDTO;
+import br.purpletech.vivo.dtos.user.UserToCreateDTO;
+import br.purpletech.vivo.exceptions.custom.team.*;
+import br.purpletech.vivo.exceptions.custom.platform.PlatformNotFoundException;
+import br.purpletech.vivo.exceptions.custom.user.EmailAlreadyUsedException;
+import br.purpletech.vivo.exceptions.custom.user.UserNotFoundException;
 import br.purpletech.vivo.models.Platform;
 import br.purpletech.vivo.models.Team;
 import br.purpletech.vivo.models.User;
@@ -8,12 +15,15 @@ import br.purpletech.vivo.repositories.TeamRepository;
 
 import br.purpletech.vivo.repositories.UserRepository;
 import br.purpletech.vivo.services.TeamService;
+import br.purpletech.vivo.utils.EntityDtoConverter;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TeamServiceImp implements TeamService {
@@ -29,105 +39,103 @@ public class TeamServiceImp implements TeamService {
         this.teamRepository = teamRepository;
     }
 
-    public List<Team> getAllTeams() { return teamRepository.findAll();}
+    public List<TeamDTO> getAllTeams() { return teamRepository.findAll().stream()
+            .map(EntityDtoConverter::toTeamDTO)
+            .collect(Collectors.toList());}
 
-    public Optional<Team> getById(Long id) {
-        return teamRepository.findById(id);
+    public TeamDTO getById(Long id) {
+        Team team = teamRepository.findById(id)
+                .orElseThrow(TeamNotFoundException::new);
+        return EntityDtoConverter.toTeamDTO(team);
     }
 
-    public Team createTeam(Team team) {
-        return teamRepository.save(team);
-    }
 
-    @Override
-    public Optional<Team> updateNameTeam(Long id, Team updateTeam) {
-        return teamRepository.findById(id).map(team -> {
-            team.setName(updateTeam.getName());
-            return teamRepository.save(team);
-        });
-    }
-
-    @Override
-    public boolean deleteTeam(Long id) {
-        return teamRepository.findById(id).map(team -> {
-            teamRepository.delete(team);
-            return true;
-        }).orElse(false);
-    }
-
-    @Override
-    public Team addUser(Long id, User user) {
-        Optional<Team> teamOptional = Optional.ofNullable(teamRepository.findById(id).orElseThrow(() -> new RuntimeException("Equipe não encontrada")));
-        if(teamOptional.isPresent()) {
-            Team team = teamOptional.get();
-
-            User savedUser = userRepository.save(user);
-
-            savedUser.setTeam(team);
-            team.getUsers().add(savedUser);
-            return teamRepository.save(team);
-        }else{
-            return null;
+    @Transactional
+    public TeamDTO createTeam(TeamToCreateDTO teamToCreate) {
+        if (teamRepository.existsByName(teamToCreate.name())) {
+            throw new TeamNameAlreadyUsedException();
         }
+
+        Team team = EntityDtoConverter.toTeam(teamToCreate);
+        Team savedTeam = teamRepository.save(team);
+
+        return EntityDtoConverter.toTeamDTO(savedTeam);
     }
 
+
+    @Transactional
     @Override
-    public boolean deleteUser(Long id_team, Long id_user) {
-        Optional<Team> teamOptional = Optional.ofNullable(teamRepository.findById(id_team).orElseThrow(() -> new EntityNotFoundException("Equipe não encontrada")));
+    public TeamDTO updateNameTeam(Long id, TeamToCreateDTO updateTeam) {
+        Team team = teamRepository.findById(id)
+                .orElseThrow(TeamNotFoundException::new);
 
-        Optional<User> userOptional = Optional.ofNullable(userRepository.findById(id_user).orElseThrow(()-> new EntityNotFoundException("Usuário não encontrado")));
-
-        if (teamOptional.isPresent() && userOptional.isPresent()){
-            Team team = teamOptional.get();
-            User user = userOptional.get();
-
-
-            team.getUsers().remove(user);
-            user.setTeam(null);
-            teamRepository.save(team);
-            userRepository.save(user);
-            return true;
-        }else{
-            return false;
+        if (teamRepository.existsByName(updateTeam.name()) && !team.getName().equalsIgnoreCase(updateTeam.name())) {
+            throw new TeamNameAlreadyUsedException();
         }
+
+        team.setName(updateTeam.name());
+        Team savedTeam = teamRepository.save(team);
+
+        return EntityDtoConverter.toTeamDTO(savedTeam);
     }
 
+
+    @Transactional
+    public void deleteTeam(Long id) {
+        Team team = teamRepository.findById(id)
+                .orElseThrow(TeamNotFoundException::new);
+
+        teamRepository.delete(team);
+    }
+
+    @Transactional
     @Override
-    public Team addPlatform(Long id, Long id_platform) {
-        Optional<Team> teamOptional = Optional.ofNullable(teamRepository.findById(id).orElseThrow(() -> new RuntimeException("Equipe não encontrada")));
-        Optional<Platform> platformOptional = Optional.ofNullable(platformRepository.findById(id_platform).orElseThrow(() -> new RuntimeException("Plataforma não encontrada")));
+    public boolean deleteUser(Long idTeam, Long idUser) {
+        Team team = teamRepository.findById(idTeam)
+                .orElseThrow(TeamNotFoundException::new);
 
-        if(teamOptional.isPresent() && platformOptional.isPresent()) {
-            Team team = teamOptional.get();
-            Platform platform = platformOptional.get();
+        User user = userRepository.findById(idUser)
+                .orElseThrow(UserNotFoundException::new);
 
+        team.getUsers().remove(user);
+        user.setTeam(null);
+        teamRepository.save(team);
+        userRepository.save(user);
+        return true;
+    }
+
+
+    @Transactional
+    @Override
+    public TeamDTO addPlatform(Long id, Long idPlatform) {
+        Team team = teamRepository.findById(id)
+                .orElseThrow(TeamNotFoundException::new);
+
+        Platform platform = platformRepository.findById(idPlatform)
+                .orElseThrow(PlatformNotFoundException::new);
+
+        if (!team.getPlatforms().contains(platform)) {
             team.getPlatforms().add(platform);
-            platform.getTeams().add(team);
-
-            platformRepository.save(platform);
-            return teamRepository.save(team);
-        }else{
-            return null;
         }
+
+        return EntityDtoConverter.toTeamDTO(teamRepository.save(team));
     }
 
+    @Transactional
     @Override
-    public boolean deletePlatform(Long id_team, Long id_platform) {
-        Optional<Team> teamOptional = Optional.ofNullable(teamRepository.findById(id_team).orElseThrow(() -> new EntityNotFoundException("Equipe não encontrada")));
+    public boolean deletePlatform(Long idTeam, Long idPlatform) {
+        Team team = teamRepository.findById(idTeam)
+                .orElseThrow(TeamNotFoundException::new);
 
-        Optional<Platform> platformOptional = Optional.ofNullable(platformRepository.findById(id_platform).orElseThrow(()-> new EntityNotFoundException("Plataforma não encontrado")));
+        Platform platform = platformRepository.findById(idPlatform)
+                .orElseThrow(PlatformNotFoundException::new);
 
-        if (teamOptional.isPresent() && platformOptional.isPresent()){
-            Team team = teamOptional.get();
-            Platform platform = platformOptional.get();
+        team.getPlatforms().remove(platform);
+        platform.getTeams().remove(team);
 
-            team.getPlatforms().remove(platform);
-            teamRepository.save(team);
-            return true;
-        }else{
-            return false;
-        }
+        teamRepository.save(team);
+
+        return true;
     }
-
 
 }

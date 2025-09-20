@@ -1,7 +1,10 @@
 package br.purpletech.vivo.controllers;
 
+import br.purpletech.vivo.dtos.task.TaskDTO;
+import br.purpletech.vivo.dtos.task.TaskToCreateDTO;
 import br.purpletech.vivo.models.Task;
 import br.purpletech.vivo.services.imp.TaskServiceImp;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,26 +23,32 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Task>> getAllTasks(){
+    public ResponseEntity<List<TaskDTO>> getAllTasks(){
         var tasks = taskServiceImp.getAllTasks();
         return ResponseEntity.ok(tasks);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Task>> getTaskById(@PathVariable Long id){
+    public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id){
         var task = taskServiceImp.getById(id);
         return ResponseEntity.ok(task);
     }
 
     @PostMapping
-    public ResponseEntity<Task> createTask (@RequestBody Task taskToCreate){
+    public ResponseEntity<TaskDTO> createTask (@RequestBody @Valid TaskToCreateDTO taskToCreate){
         var task = taskServiceImp.createTask(taskToCreate);
         return ResponseEntity.ok(task);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Optional<Task>> updateNameTask(@PathVariable Long id, @RequestBody Task updatedTask){
+    @PatchMapping("/{id}")
+    public ResponseEntity<TaskDTO> updateNameTask(@PathVariable Long id, @RequestBody @Valid TaskToCreateDTO updatedTask){
         var task = taskServiceImp.updateNameTask(id, updatedTask);
+        return ResponseEntity.ok(task);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<TaskDTO> updateStatusTask(@PathVariable Long id){
+        var task = taskServiceImp.updateStatusTask(id);
         return ResponseEntity.ok(task);
     }
 

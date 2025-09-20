@@ -1,18 +1,21 @@
 package br.purpletech.vivo.services;
 
+import br.purpletech.vivo.dtos.task.TaskDTO;
+import br.purpletech.vivo.dtos.task.TaskToCreateDTO;
 import br.purpletech.vivo.models.Task;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface TaskService {
-    List<Task> getAllTasks();
+    List<TaskDTO> getAllTasks();
 
-    Optional<Task> getById(Long id);
+    TaskDTO getById(Long id);
 
-    Task createTask(Task taskToCreate);
+    TaskDTO createTask(TaskToCreateDTO taskToCreate);
 
-    boolean deleteTask(Long id);
+    void deleteTask(Long id);
 
-    Optional<Task> updateNameTask (Long id, Task updateTask);
+    TaskDTO updateNameTask (Long id, TaskToCreateDTO updateTask);
+    public TaskDTO updateStatusTask(Long id);
 }

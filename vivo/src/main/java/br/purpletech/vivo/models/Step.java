@@ -2,37 +2,48 @@ package br.purpletech.vivo.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Entity(name = "tb_steps")
-@Getter
-@Setter
+@Entity
+@Table(
+        name = "steps",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"onboarding_id", "step_order"})
+)
 public class Step {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_step")
     private Long id;
 
     private String name;
     private String description;
 
+    @Column(name = "step_order", nullable = false)
+    private Integer stepOrder; // define a sequência
+
+    @Column(name = "in_progress")
+    private boolean inProgress;
+
     @ManyToOne
     @JsonIgnoreProperties("steps")
-    @JoinColumn(name = "onboarding_id")
+    @JoinColumn(name = "id_onboarding")
     private Onboarding onboarding;
 
     @OneToMany(mappedBy = "step")
     @JsonIgnoreProperties("step") // para não ocorrer replicação infinita no json
-    private Set<Task> tasks = new HashSet<>();
+    private List<Task> tasks  = new ArrayList<>();
 
     public Long getId() {
         return id;
     }
-
 
     public String getName() {
         return name;
@@ -50,6 +61,7 @@ public class Step {
         this.description = description;
     }
 
+
     public Onboarding getOnboarding() {
         return onboarding;
     }
@@ -58,11 +70,29 @@ public class Step {
         this.onboarding = onboarding;
     }
 
-    public Set<Task> getTasks() {
+    public List<Task> getTasks() {
         return tasks;
     }
 
-    public void setTasks(Set<Task> tasks) {
+    public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
     }
+
+    public Integer getStepOrder() {
+        return stepOrder;
+    }
+
+    public void setStepOrder(Integer order) {
+        this.stepOrder = order;
+    }
+
+    public boolean isInProgress() {
+        return inProgress;
+    }
+
+    public void setInProgress(boolean inProgress) {
+        this.inProgress = inProgress;
+    }
+
+
 }

@@ -1,8 +1,11 @@
 package br.purpletech.vivo.controllers;
 
 
+import br.purpletech.vivo.dtos.platform.PlatformDTO;
+import br.purpletech.vivo.dtos.platform.PlatformToCreateDTO;
 import br.purpletech.vivo.models.Platform;
 import br.purpletech.vivo.services.imp.PlatformServiceImp;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,25 +23,25 @@ public class PlatformController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Platform>> getAllPlatforms(){
+    public ResponseEntity<List<PlatformDTO>> getAllPlatforms(){
         var platforms = platformServiceImp.getAllPlatforms();
         return ResponseEntity.ok(platforms);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Platform>> getPlatformById(@PathVariable Long id){
+    public ResponseEntity<PlatformDTO> getPlatformById(@PathVariable Long id){
         var platform = platformServiceImp.getById(id);
         return ResponseEntity.ok(platform);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Optional<Platform>> updatePlatform(@PathVariable Long id, @RequestBody Platform updatedPlatform){
+    @PatchMapping("/{id}")
+    public ResponseEntity<PlatformDTO> updatePlatform(@PathVariable Long id, @RequestBody @Valid PlatformToCreateDTO updatedPlatform){
         var platform = platformServiceImp.updatePlatform(id, updatedPlatform);
         return ResponseEntity.ok(platform);
     }
 
     @PostMapping
-    public ResponseEntity<Platform> createPlatform(@RequestBody Platform platformToCreate){
+    public ResponseEntity<PlatformDTO> createPlatform(@RequestBody @Valid PlatformToCreateDTO platformToCreate){
         var platform = platformServiceImp.createPlatform(platformToCreate);
         return ResponseEntity.ok(platform);
     }
