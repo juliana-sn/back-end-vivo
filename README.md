@@ -38,6 +38,7 @@ src/
 * Banco: PostgreSQL
 * Migração: Flyway
 📁 Migrações
+
 Arquivos .sql ficam em:
 src/main/resources/db/migration
 
@@ -45,6 +46,7 @@ src/main/resources/db/migration
 
 ## 🔐 Autenticação
 A API utiliza JWT. Inclua o token no header das requisições protegidas:
+
 Authorization: Bearer <seu_token>
 
 ---
@@ -88,7 +90,7 @@ Authorization: Bearer <seu_token>
 * POST /users/{senderId}/chat/{receiverId}/message: Envia mensagem.
 
 ### 👥 Time e Plataformas
-* GET /teams/{id}: Retorna time e plataformas.
+* GET /teams/{id}: Retorna time.
 * GET /platforms: Lista todas as plataformas.
 * GET /platforms/{id}: Busca plataforma por ID.
 * POST /platforms: Cria nova plataforma.
@@ -105,10 +107,11 @@ git clone https://github.com/juliana-sn/back-end-vivo.git
 cd back-end-vivo
 
 # Configure o application.properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/vivo
+spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
 spring.datasource.username=seu_usuario
 spring.datasource.password=sua_senha
 spring.flyway.enabled=true
+encryption.key=suaChaveSecreta
 
 # Execute o projeto
 ./mvnw spring-boot:run
