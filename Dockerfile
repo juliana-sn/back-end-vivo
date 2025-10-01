@@ -6,7 +6,7 @@ WORKDIR /app
 
 COPY vivo/ /app
 
-RUN mvn clean install
+RUN mvn -f /app/pom.xml clean install
 
 FROM openjdk:17-jdk-slim
 
