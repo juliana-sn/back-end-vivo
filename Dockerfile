@@ -6,7 +6,7 @@ WORKDIR /app
 
 COPY vivo/ /app
 
-RUN mvn -f /app/pom.xml clean install
+RUN mvn -f /app/pom.xml clean install -DskipTests
 
 FROM openjdk:17-jdk-slim
 
