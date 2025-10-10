@@ -98,25 +98,4 @@ Authorization: Bearer <seu_token>
 
 ---
 
-## 🛠️ Como Rodar o Projeto Localmente
-```
-# Clone o repositório
-git clone https://github.com/juliana-sn/back-end-vivo.git
-
-# Acesse a pasta
-cd back-end-vivo
-
-# Configure o application.properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
-spring.datasource.username=seu_usuario
-spring.datasource.password=sua_senha
-spring.flyway.enabled=true
-encryption.key=suaChaveSecreta
-
-# Execute o projeto
-./mvnw spring-boot:run
-
-```
----
-
 Projeto desenvolvido pela equipe PurpleTech, alunos do 2º ano de Sistemas de Informação na FIAP.
